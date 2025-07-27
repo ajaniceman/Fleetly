@@ -13,6 +13,7 @@ async function runMigrations() {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
+    multipleStatements: true,
   })
 
   try {
@@ -20,17 +21,29 @@ async function runMigrations() {
     const schemaPath = path.join(__dirname, "..", "database", "schema.sql")
     const schema = fs.readFileSync(schemaPath, "utf8")
 
-    // Split by semicolon and execute each statement
-    const statements = schema.split(";").filter((stmt) => stmt.trim())
-
-    for (const statement of statements) {
-      if (statement.trim()) {
-        await connection.execute(statement)
-      }
-    }
-
+    console.log("📋 Executing database schema...")
+    await connection.execute(schema)
     console.log("✅ Database schema created successfully!")
-    console.log("🚀 Database is ready for use!")
+
+    // Insert default admin user
+    console.log("👤 Creating default admin user...")
+    const bcrypt = require("bcryptjs")
+    const hashedPassword = await bcrypt.hash("admin123", 10)
+
+    await connection.execute(
+      `
+      INSERT IGNORE INTO users (email, password, firstName, lastName, role, isActive) 
+      VALUES (?, ?, ?, ?, ?, ?)
+    `,
+      ["admin@fleetly.com", hashedPassword, "Admin", "User", "admin", true],
+    )
+
+    console.log("✅ Default admin user created!")
+    console.log("   Email: admin@fleetly.com")
+    console.log("   Password: admin123")
+    console.log("   ⚠️  Please change this password after first login!\n")
+
+    console.log("🎉 Database migration completed successfully!")
   } catch (error) {
     console.error("❌ Migration failed:", error.message)
     process.exit(1)

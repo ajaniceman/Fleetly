@@ -1,132 +1,93 @@
 # 🚗 Fleetly - Advanced Fleet Management System
 
-A comprehensive, production-ready fleet management system built with Next.js 14, TypeScript, MySQL, and modern web technologies. Manage vehicles, drivers, maintenance, fuel consumption, incidents, and generate detailed reports with real-time notifications.
-
-![Fleetly Dashboard](https://via.placeholder.com/800x400/3b82f6/ffffff?text=Fleetly+Dashboard)
+A comprehensive, production-ready fleet management solution built with Next.js, TypeScript, and MySQL. Features real-time tracking, maintenance scheduling, driver management, and intelligent reporting.
 
 ## ✨ Features
 
-### 🚗 **Vehicle Management**
+### 🚛 **Vehicle Management**
 - Complete vehicle inventory with detailed specifications
-- Real-time vehicle status tracking
-- Vehicle assignment and scheduling
-- Document management (registration, insurance, etc.)
-- Maintenance history and scheduling
+- Real-time status tracking (Active, Maintenance, Out of Service)
+- Fuel efficiency monitoring and analytics
+- Insurance and registration tracking
+- Vehicle assignment and history
 
 ### 👥 **Driver Management**
-- Driver profiles with license information
+- Driver profiles with license verification
 - Performance tracking and scoring
-- License expiry alerts
-- Driver assignment to vehicles
-- Training records and certifications
+- License expiry alerts and notifications
+- Assignment history and availability status
+- Contact information and emergency contacts
 
 ### 🔧 **Maintenance System**
-- Automated maintenance scheduling
-- Service history tracking
-- Cost management and budgeting
-- Vendor management
-- Preventive maintenance alerts
+- Preventive maintenance scheduling
+- Work order management with status tracking
+- Cost tracking and budget analysis
+- Automated email reminders
+- Maintenance history and reports
 
 ### ⛽ **Fuel Management**
 - Fuel consumption tracking
-- Cost analysis and optimization
-- Fuel card integration
-- Efficiency reporting
-- Fuel theft detection
-
-### 🚨 **Incident Management**
-- Incident reporting and tracking
-- Insurance claim management
-- Photo and document uploads
-- Severity classification
-- Investigation workflow
-
-### 📊 **Advanced Reporting**
-- Real-time dashboard with KPIs
-- Custom report generation
 - Cost analysis and budgeting
-- Performance metrics
-- Export capabilities (PDF, Excel)
+- Efficiency reports per vehicle/driver
+- Fuel card integration ready
+- Consumption trend analysis
+
+### 📊 **Advanced Analytics**
+- Real-time dashboard with key metrics
+- Cost analysis and budget tracking
+- Performance reports and insights
+- Maintenance cost optimization
+- Driver performance analytics
 
 ### 🔔 **Smart Notifications**
-- Email notifications via Gmail
-- Real-time in-app notifications
-- Maintenance reminders
-- License expiry alerts
-- Incident notifications
+- Email alerts for maintenance due dates
+- License expiry notifications
+- System-wide announcement system
+- Real-time status updates
+- Customizable notification preferences
 
-### 🌍 **Multi-language Support**
-- English, Spanish, French, German, Bosnian
+### 🌍 **Multi-Language Support**
+- English, Spanish, French, German
 - Easy language switching
-- Localized email templates
-- Currency conversion support
+- Localized date and number formats
+- RTL language support ready
 
-### 🎨 **Modern UI/UX**
-- Responsive design for all devices
-- Dark/Light theme support
-- Intuitive navigation
-- Advanced filtering and search
-- Real-time updates
+### 💰 **Multi-Currency Support**
+- Real-time currency conversion
+- Support for major world currencies
+- Localized pricing displays
+- Historical exchange rate tracking
 
-## 🛠️ Technology Stack
+## 🛠️ **Technology Stack**
 
 - **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, Radix UI, Lucide Icons
-- **Backend**: Next.js API Routes, MySQL
-- **Database**: MySQL 8.0+ with optimized schemas
-- **Authentication**: JWT with secure session management
-- **Email**: Gmail SMTP with Nodemailer
-- **Deployment**: Docker, Vercel, or traditional hosting
+- **Styling**: Tailwind CSS, Radix UI Components
+- **Database**: MySQL with connection pooling
+- **Authentication**: JWT with bcrypt encryption
+- **Email**: Gmail SMTP integration
+- **Deployment**: Docker, Vercel ready
+- **Testing**: Jest, React Testing Library
 
-## 🚀 Quick Start
+## 🚀 **Quick Start**
 
 ### Prerequisites
-
 - Node.js 18+ and npm 8+
 - MySQL 8.0+
 - Gmail account with App Password
-- Git
 
-### 1. Clone Repository
-
+### 1. Clone and Install
 \`\`\`bash
 git clone https://github.com/yourusername/fleetly.git
 cd fleetly
-\`\`\`
-
-### 2. Install Dependencies
-
-\`\`\`bash
 npm install
 \`\`\`
 
-### 3. Database Setup
-
+### 2. Environment Setup
 \`\`\`bash
-# Create MySQL database
-mysql -u root -p
-CREATE DATABASE fleetly_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'fleetly_user'@'localhost' IDENTIFIED BY 'your_secure_password';
-GRANT ALL PRIVILEGES ON fleetly_db.* TO 'fleetly_user'@'localhost';
-FLUSH PRIVILEGES;
-exit
-
-# Import database schema
-mysql -u fleetly_user -p fleetly_db < database/schema.sql
-\`\`\`
-
-### 4. Environment Configuration
-
-\`\`\`bash
-# Copy environment template
 cp .env.example .env.local
-
-# Edit with your configuration
-nano .env.local
 \`\`\`
 
-**Required Environment Variables:**
-
+Edit `.env.local` with your configuration:
 \`\`\`env
 # Database Configuration
 DB_HOST=localhost
@@ -134,211 +95,211 @@ DB_PORT=3306
 DB_USER=fleetly_user
 DB_PASSWORD=your_secure_password
 DB_NAME=fleetly_db
-DB_SSL=false
-
-# Authentication
-JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters
-JWT_EXPIRES_IN=24h
-
-# Temporary Admin Account (Change after first login)
-TEMP_ADMIN_EMAIL=admin
-TEMP_ADMIN_PASSWORD=testpassword
 
 # Gmail Configuration
 GMAIL_USER=your-email@gmail.com
-GMAIL_APP_PASSWORD=your-gmail-app-password
+GMAIL_APP_PASSWORD=your-16-char-app-password
 FROM_NAME=Fleetly System
 
-# Application
-APP_URL=http://localhost:3000
+# Security
+JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters
 
-# Currency Exchange (Optional)
-EXCHANGE_API_URL=https://api.exchangerate-api.com/v4/latest
-EXCHANGE_API_KEY=your_exchange_api_key
+# Application
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 \`\`\`
 
-### 5. Gmail Setup
+### 3. Database Setup
+\`\`\`bash
+# Create database and user in MySQL
+mysql -u root -p
+CREATE DATABASE fleetly_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'fleetly_user'@'localhost' IDENTIFIED BY 'your_secure_password';
+GRANT ALL PRIVILEGES ON fleetly_db.* TO 'fleetly_user'@'localhost';
+FLUSH PRIVILEGES;
+exit
 
-1. Enable 2-Factor Authentication on your Gmail account
-2. Generate an App Password:
-   - Go to Google Account settings
-   - Security → 2-Step Verification → App passwords
-   - Generate password for "Mail"
-   - Use this password in `GMAIL_APP_PASSWORD`
+# Run migrations
+npm run db:migrate
+\`\`\`
 
-### 6. Run Development Server
+### 4. Gmail Setup
+1. Enable 2-Factor Authentication on your Gmail
+2. Generate App Password: [Google Account Settings](https://myaccount.google.com/) → Security → App passwords
+3. Test email configuration:
+\`\`\`bash
+npm run email:test
+\`\`\`
 
+### 5. Start Development
 \`\`\`bash
 npm run dev
 \`\`\`
 
 Visit `http://localhost:3000` and login with:
-- **Email**: admin
-- **Password**: testpassword
+- **Email**: admin@fleetly.com
+- **Password**: admin123
 
-## 📦 Production Deployment
+## 🐳 **Docker Deployment**
 
-### Option 1: Vercel (Recommended)
+### Quick Deploy with Docker Compose
+\`\`\`bash
+# Start all services
+docker-compose up -d
 
+# View logs
+docker-compose logs -f fleetly-app
+
+# Stop services
+docker-compose down
+\`\`\`
+
+### Manual Docker Build
+\`\`\`bash
+# Build image
+docker build -t fleetly .
+
+# Run container
+docker run -p 3000:3000 --env-file .env.local fleetly
+\`\`\`
+
+## ☁️ **Cloud Deployment**
+
+### Vercel (Recommended)
 1. Push code to GitHub
 2. Connect repository to Vercel
 3. Add environment variables in Vercel dashboard
-4. Deploy automatically
+4. Deploy automatically on push
 
-### Option 2: Docker
-
+### Manual Server Deployment
 \`\`\`bash
-# Build and run with Docker Compose
-docker-compose up -d
-\`\`\`
-
-### Option 3: Traditional Server
-
-\`\`\`bash
-# Build application
+# Build for production
 npm run build
 
 # Start production server
 npm start
 \`\`\`
 
-## 🔧 Configuration
+## 📁 **Project Structure**
 
-### Database Migration
-
-\`\`\`bash
-npm run db:migrate
+\`\`\`
+fleetly/
+├── app/                    # Next.js App Router pages
+│   ├── dashboard/         # Dashboard pages
+│   ├── vehicles/          # Vehicle management
+│   ├── drivers/           # Driver management
+│   ├── maintenance/       # Maintenance system
+│   ├── fuel/             # Fuel management
+│   └── reports/          # Analytics and reports
+├── components/            # Reusable UI components
+│   ├── ui/               # Base UI components
+│   └── layout/           # Layout components
+├── lib/                  # Utilities and services
+│   ├── services/         # Business logic services
+│   ├── database/         # Database connection
+│   └── i18n/            # Internationalization
+├── database/             # Database schema and migrations
+└── scripts/              # Utility scripts
 \`\`\`
 
-### Seed Sample Data
+## 🔧 **Available Scripts**
 
 \`\`\`bash
-npm run db:seed
+npm run dev          # Start development server
+npm run build        # Build for production
+npm start           # Start production server
+npm run lint        # Run ESLint
+npm run type-check  # TypeScript type checking
+npm run db:migrate  # Run database migrations
+npm run email:test  # Test email configuration
+npm test           # Run tests
 \`\`\`
 
-### Test Email Configuration
+## 🔐 **Security Features**
 
-\`\`\`bash
-npm run email:test
-\`\`\`
-
-## 📱 Usage
-
-### Dashboard Overview
-- View key metrics and KPIs
-- Monitor vehicle status
-- Track maintenance schedules
-- Review recent incidents
-
-### Vehicle Management
-- Add/edit vehicle information
-- Track maintenance history
-- Monitor fuel consumption
-- Manage documents
-
-### Driver Management
-- Maintain driver profiles
-- Track license expiry
-- Monitor performance
-- Assign vehicles
-
-### Maintenance Scheduling
-- Create maintenance schedules
-- Track service history
-- Manage costs
-- Set up alerts
-
-### Reporting
-- Generate custom reports
-- Export data (PDF, Excel)
-- Analyze trends
-- Monitor costs
-
-## 🔒 Security Features
-
-- JWT-based authentication
+- JWT-based authentication with secure token handling
 - Password hashing with bcrypt
-- SQL injection prevention
-- XSS protection
-- CSRF protection
-- Rate limiting
-- Secure session management
+- SQL injection prevention with parameterized queries
+- XSS protection with input sanitization
+- CSRF protection built-in
+- Environment variable security
+- Role-based access control
 
-## 🌐 API Documentation
+## 📧 **Email Templates**
 
-### Authentication Endpoints
+The system includes beautiful HTML email templates for:
+- 🔧 Maintenance reminders
+- ⚠️ License expiry alerts
+- 👋 Welcome emails for new users
+- 📊 System notifications
+
+## 🌐 **API Endpoints**
+
+### Authentication
 - `POST /api/auth/login` - User login
 - `POST /api/auth/logout` - User logout
-- `POST /api/auth/refresh` - Refresh token
+- `GET /api/auth/me` - Get current user
 
-### Vehicle Endpoints
-- `GET /api/vehicles` - List vehicles
-- `POST /api/vehicles` - Create vehicle
+### Vehicles
+- `GET /api/vehicles` - List all vehicles
+- `POST /api/vehicles` - Create new vehicle
 - `PUT /api/vehicles/:id` - Update vehicle
 - `DELETE /api/vehicles/:id` - Delete vehicle
 
-### Driver Endpoints
-- `GET /api/drivers` - List drivers
-- `POST /api/drivers` - Create driver
+### Drivers
+- `GET /api/drivers` - List all drivers
+- `POST /api/drivers` - Create new driver
 - `PUT /api/drivers/:id` - Update driver
 - `DELETE /api/drivers/:id` - Delete driver
 
-[Full API documentation available in `/docs/api.md`]
+### Maintenance
+- `GET /api/maintenance` - List maintenance records
+- `POST /api/maintenance` - Create maintenance record
+- `PUT /api/maintenance/:id` - Update maintenance record
 
-## 🧪 Testing
+## 🧪 **Testing**
 
 \`\`\`bash
-# Run tests
+# Run all tests
 npm test
 
 # Run tests in watch mode
 npm run test:watch
 
-# Type checking
-npm run type-check
+# Run tests with coverage
+npm run test:coverage
 \`\`\`
 
-## 🤝 Contributing
+## 🤝 **Contributing**
 
 1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📄 License
+## 📄 **License**
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 🆘 **Support**
 
 - 📧 Email: support@fleetly.com
 - 📖 Documentation: [docs.fleetly.com](https://docs.fleetly.com)
 - 🐛 Issues: [GitHub Issues](https://github.com/yourusername/fleetly/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/fleetly/discussions)
 
-## 🗺️ Roadmap
+## 🎯 **Roadmap**
 
 - [ ] Mobile app (React Native)
 - [ ] GPS tracking integration
-- [ ] Advanced analytics with AI
-- [ ] Multi-tenant support
+- [ ] Advanced reporting dashboard
 - [ ] API rate limiting
 - [ ] Webhook integrations
-- [ ] Advanced reporting dashboard
-- [ ] Fleet optimization algorithms
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org/) - React framework
-- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
-- [Radix UI](https://www.radix-ui.com/) - UI components
-- [Lucide](https://lucide.dev/) - Icon library
-- [MySQL](https://www.mysql.com/) - Database
-- [Nodemailer](https://nodemailer.com/) - Email service
+- [ ] Multi-tenant support
+- [ ] Advanced role permissions
+- [ ] Audit logging system
 
 ---
 
 **Built with ❤️ by the Fleetly Team**
 
-*Fleetly - Streamline Your Fleet Operations*
+*Fleetly - Making fleet management simple, efficient, and intelligent.*
