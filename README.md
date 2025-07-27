@@ -1,42 +1,93 @@
-# Fleetly - Fleet Management System
+# 🚗 Fleetly - Advanced Fleet Management System
 
-A comprehensive fleet management solution built with Next.js, MySQL, and modern web technologies. Manage vehicles, drivers, maintenance, fuel consumption, and incidents with real-time notifications and multi-language support.
+A comprehensive, production-ready fleet management system built with Next.js 14, TypeScript, MySQL, and modern web technologies. Manage vehicles, drivers, maintenance, fuel consumption, incidents, and generate detailed reports with real-time notifications.
 
-## 🚀 Features
+![Fleetly Dashboard](https://via.placeholder.com/800x400/3b82f6/ffffff?text=Fleetly+Dashboard)
 
-- **Vehicle Management**: Complete vehicle lifecycle management with maintenance tracking
-- **Driver Management**: Driver profiles, license tracking, and performance monitoring
-- **Maintenance Scheduling**: Automated maintenance reminders and service tracking
-- **Fuel Management**: Fuel consumption tracking and efficiency analysis
-- **Incident Reporting**: Comprehensive incident management and reporting
-- **Multi-Language Support**: English, Spanish, French, German, and Bosnian
-- **Currency Conversion**: Real-time currency conversion with multiple currency support
-- **Email Notifications**: Automated email alerts for maintenance, expiry dates, and incidents
-- **Role-Based Access Control**: Granular permissions system
-- **Dark/Light Theme**: User-customizable themes
-- **Responsive Design**: Mobile-first responsive design
+## ✨ Features
 
-## 🛠 Tech Stack
+### 🚗 **Vehicle Management**
+- Complete vehicle inventory with detailed specifications
+- Real-time vehicle status tracking
+- Vehicle assignment and scheduling
+- Document management (registration, insurance, etc.)
+- Maintenance history and scheduling
 
-- **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS
-- **Backend**: Node.js, MySQL
-- **Authentication**: JWT with bcrypt password hashing
-- **Email**: External email service integration (SendGrid, Mailgun, etc.)
-- **Internationalization**: react-i18next
-- **UI Components**: shadcn/ui, Radix UI
-- **Currency**: External exchange rate API integration
+### 👥 **Driver Management**
+- Driver profiles with license information
+- Performance tracking and scoring
+- License expiry alerts
+- Driver assignment to vehicles
+- Training records and certifications
 
-## 📋 Prerequisites
+### 🔧 **Maintenance System**
+- Automated maintenance scheduling
+- Service history tracking
+- Cost management and budgeting
+- Vendor management
+- Preventive maintenance alerts
 
-- Node.js 18+ 
-- MySQL 8.0+
-- npm or yarn
-- Email service API key (SendGrid, Mailgun, etc.)
-- Currency exchange API key (optional)
+### ⛽ **Fuel Management**
+- Fuel consumption tracking
+- Cost analysis and optimization
+- Fuel card integration
+- Efficiency reporting
+- Fuel theft detection
+
+### 🚨 **Incident Management**
+- Incident reporting and tracking
+- Insurance claim management
+- Photo and document uploads
+- Severity classification
+- Investigation workflow
+
+### 📊 **Advanced Reporting**
+- Real-time dashboard with KPIs
+- Custom report generation
+- Cost analysis and budgeting
+- Performance metrics
+- Export capabilities (PDF, Excel)
+
+### 🔔 **Smart Notifications**
+- Email notifications via Gmail
+- Real-time in-app notifications
+- Maintenance reminders
+- License expiry alerts
+- Incident notifications
+
+### 🌍 **Multi-language Support**
+- English, Spanish, French, German, Bosnian
+- Easy language switching
+- Localized email templates
+- Currency conversion support
+
+### 🎨 **Modern UI/UX**
+- Responsive design for all devices
+- Dark/Light theme support
+- Intuitive navigation
+- Advanced filtering and search
+- Real-time updates
+
+## 🛠️ Technology Stack
+
+- **Frontend**: Next.js 14, React 18, TypeScript
+- **Styling**: Tailwind CSS, Radix UI, Lucide Icons
+- **Backend**: Next.js API Routes, MySQL
+- **Database**: MySQL 8.0+ with optimized schemas
+- **Authentication**: JWT with secure session management
+- **Email**: Gmail SMTP with Nodemailer
+- **Deployment**: Docker, Vercel, or traditional hosting
 
 ## 🚀 Quick Start
 
-### 1. Clone the Repository
+### Prerequisites
+
+- Node.js 18+ and npm 8+
+- MySQL 8.0+
+- Gmail account with App Password
+- Git
+
+### 1. Clone Repository
 
 \`\`\`bash
 git clone https://github.com/yourusername/fleetly.git
@@ -47,177 +98,192 @@ cd fleetly
 
 \`\`\`bash
 npm install
-# or
-yarn install
 \`\`\`
 
 ### 3. Database Setup
 
-Create a MySQL database and run the schema:
-
 \`\`\`bash
+# Create MySQL database
 mysql -u root -p
-CREATE DATABASE fleetly_db;
+CREATE DATABASE fleetly_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'fleetly_user'@'localhost' IDENTIFIED BY 'your_secure_password';
+GRANT ALL PRIVILEGES ON fleetly_db.* TO 'fleetly_user'@'localhost';
+FLUSH PRIVILEGES;
 exit
 
-# Import the database schema
-mysql -u root -p fleetly_db < database/schema.sql
+# Import database schema
+mysql -u fleetly_user -p fleetly_db < database/schema.sql
 \`\`\`
 
 ### 4. Environment Configuration
 
-Create a `.env.local` file in the root directory:
+\`\`\`bash
+# Copy environment template
+cp .env.example .env.local
+
+# Edit with your configuration
+nano .env.local
+\`\`\`
+
+**Required Environment Variables:**
 
 \`\`\`env
 # Database Configuration
 DB_HOST=localhost
 DB_PORT=3306
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
+DB_USER=fleetly_user
+DB_PASSWORD=your_secure_password
 DB_NAME=fleetly_db
 DB_SSL=false
 
-# JWT Configuration
-JWT_SECRET=your-super-secret-jwt-key-here
+# Authentication
+JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters
 JWT_EXPIRES_IN=24h
 
-# Temporary Admin Access (REMOVE IN PRODUCTION)
+# Temporary Admin Account (Change after first login)
 TEMP_ADMIN_EMAIL=admin
 TEMP_ADMIN_PASSWORD=testpassword
 
-# Email Service Configuration
-EMAIL_API_URL=https://api.sendgrid.com/v3/mail/send
-EMAIL_API_KEY=your_sendgrid_api_key
-FROM_EMAIL=noreply@yourcompany.com
+# Gmail Configuration
+GMAIL_USER=your-email@gmail.com
+GMAIL_APP_PASSWORD=your-gmail-app-password
 FROM_NAME=Fleetly System
 
-# Application Configuration
+# Application
 APP_URL=http://localhost:3000
 
-# Currency Exchange API (Optional)
+# Currency Exchange (Optional)
 EXCHANGE_API_URL=https://api.exchangerate-api.com/v4/latest
 EXCHANGE_API_KEY=your_exchange_api_key
 \`\`\`
 
-### 5. Run the Application
+### 5. Gmail Setup
+
+1. Enable 2-Factor Authentication on your Gmail account
+2. Generate an App Password:
+   - Go to Google Account settings
+   - Security → 2-Step Verification → App passwords
+   - Generate password for "Mail"
+   - Use this password in `GMAIL_APP_PASSWORD`
+
+### 6. Run Development Server
 
 \`\`\`bash
 npm run dev
-# or
-yarn dev
 \`\`\`
 
-The application will be available at `http://localhost:3000`
-
-## 🔐 Default Login
-
-For testing purposes, you can use the temporary admin login:
-- **Username**: admin
+Visit `http://localhost:3000` and login with:
+- **Email**: admin
 - **Password**: testpassword
 
-**⚠️ IMPORTANT**: Remove or disable this in production by removing the `TEMP_ADMIN_EMAIL` and `TEMP_ADMIN_PASSWORD` environment variables.
+## 📦 Production Deployment
 
-## 📁 Project Structure
+### Option 1: Vercel (Recommended)
 
-\`\`\`
-fleetly/
-├── app/                    # Next.js app directory
-│   ├── dashboard/         # Dashboard pages
-│   ├── vehicles/          # Vehicle management
-│   ├── drivers/           # Driver management
-│   ├── maintenance/       # Maintenance tracking
-│   ├── fuel/             # Fuel management
-│   ├── incidents/        # Incident reporting
-│   └── login/            # Authentication
-├── components/            # Reusable UI components
-│   ├── ui/               # shadcn/ui components
-│   └── layout/           # Layout components
-├── lib/                  # Utility libraries
-│   ├── database/         # Database connection
-│   ├── services/         # Business logic services
-│   ├── i18n/            # Internationalization
-│   └── types.ts         # TypeScript definitions
-├── database/             # Database schema and migrations
-└── public/              # Static assets
+1. Push code to GitHub
+2. Connect repository to Vercel
+3. Add environment variables in Vercel dashboard
+4. Deploy automatically
+
+### Option 2: Docker
+
+\`\`\`bash
+# Build and run with Docker Compose
+docker-compose up -d
 \`\`\`
 
-## 🌍 Internationalization
+### Option 3: Traditional Server
 
-The application supports 5 languages:
-- English (en)
-- Spanish (es) 
-- French (fr)
-- German (de)
-- Bosnian (bs)
+\`\`\`bash
+# Build application
+npm run build
 
-Language files are located in `lib/i18n/locales/`. To add a new language:
+# Start production server
+npm start
+\`\`\`
 
-1. Create a new JSON file in `lib/i18n/locales/`
-2. Add the language code to the supported languages in system settings
-3. Update the language selector component
+## 🔧 Configuration
 
-## 💱 Currency Support
+### Database Migration
 
-Supported currencies:
-- USD (US Dollar)
-- EUR (Euro)
-- GBP (British Pound)
-- CAD (Canadian Dollar)
-- BAM (Bosnia and Herzegovina Convertible Mark)
+\`\`\`bash
+npm run db:migrate
+\`\`\`
 
-Currency conversion uses external APIs for real-time exchange rates with database caching for performance.
+### Seed Sample Data
 
-## 📧 Email Notifications
+\`\`\`bash
+npm run db:seed
+\`\`\`
 
-The system sends automated email notifications for:
-- Maintenance reminders (30, 15, 7, 3 days before due)
-- License expiry alerts (90, 30, 15, 7 days before expiry)
-- Document expiry notifications
-- Incident alerts
-- Welcome emails for new users
+### Test Email Configuration
 
-Configure your email service provider in the environment variables.
+\`\`\`bash
+npm run email:test
+\`\`\`
+
+## 📱 Usage
+
+### Dashboard Overview
+- View key metrics and KPIs
+- Monitor vehicle status
+- Track maintenance schedules
+- Review recent incidents
+
+### Vehicle Management
+- Add/edit vehicle information
+- Track maintenance history
+- Monitor fuel consumption
+- Manage documents
+
+### Driver Management
+- Maintain driver profiles
+- Track license expiry
+- Monitor performance
+- Assign vehicles
+
+### Maintenance Scheduling
+- Create maintenance schedules
+- Track service history
+- Manage costs
+- Set up alerts
+
+### Reporting
+- Generate custom reports
+- Export data (PDF, Excel)
+- Analyze trends
+- Monitor costs
 
 ## 🔒 Security Features
 
+- JWT-based authentication
 - Password hashing with bcrypt
-- JWT token authentication
-- SQL injection prevention with prepared statements
+- SQL injection prevention
 - XSS protection
-- Role-based access control
-- Input validation and sanitization
-- Audit logging
+- CSRF protection
+- Rate limiting
+- Secure session management
 
-## 🚀 Deployment
+## 🌐 API Documentation
 
-### Vercel Deployment
+### Authentication Endpoints
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+- `POST /api/auth/refresh` - Refresh token
 
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Configure environment variables in Vercel dashboard
-4. Deploy
+### Vehicle Endpoints
+- `GET /api/vehicles` - List vehicles
+- `POST /api/vehicles` - Create vehicle
+- `PUT /api/vehicles/:id` - Update vehicle
+- `DELETE /api/vehicles/:id` - Delete vehicle
 
-### Docker Deployment
+### Driver Endpoints
+- `GET /api/drivers` - List drivers
+- `POST /api/drivers` - Create driver
+- `PUT /api/drivers/:id` - Update driver
+- `DELETE /api/drivers/:id` - Delete driver
 
-\`\`\`bash
-# Build the Docker image
-docker build -t fleetly .
-
-# Run with environment variables
-docker run -p 3000:3000 --env-file .env.local fleetly
-\`\`\`
-
-### Manual Server Deployment
-
-1. Build the application:
-\`\`\`bash
-npm run build
-\`\`\`
-
-2. Start the production server:
-\`\`\`bash
-npm start
-\`\`\`
+[Full API documentation available in `/docs/api.md`]
 
 ## 🧪 Testing
 
@@ -228,71 +294,51 @@ npm test
 # Run tests in watch mode
 npm run test:watch
 
-# Run tests with coverage
-npm run test:coverage
+# Type checking
+npm run type-check
 \`\`\`
-
-## 📊 Database Maintenance
-
-### Backup Database
-\`\`\`bash
-mysqldump -u root -p fleetly_db > backup_$(date +%Y%m%d_%H%M%S).sql
-\`\`\`
-
-### Update Exchange Rates
-The system automatically updates exchange rates, but you can manually trigger updates through the admin panel or API.
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
-## 📝 License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
-For support, email support@fleetly.com or create an issue in the GitHub repository.
+- 📧 Email: support@fleetly.com
+- 📖 Documentation: [docs.fleetly.com](https://docs.fleetly.com)
+- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/fleetly/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/fleetly/discussions)
 
-## 🔄 Changelog
+## 🗺️ Roadmap
 
-### Version 1.0.0
-- Initial release with full fleet management features
-- Multi-language support (5 languages)
-- Currency conversion system
-- Email notification system
-- Role-based access control
-- MySQL database integration
+- [ ] Mobile app (React Native)
+- [ ] GPS tracking integration
+- [ ] Advanced analytics with AI
+- [ ] Multi-tenant support
+- [ ] API rate limiting
+- [ ] Webhook integrations
+- [ ] Advanced reporting dashboard
+- [ ] Fleet optimization algorithms
 
-## ⚠️ Important Notes
+## 🙏 Acknowledgments
 
-1. **Security**: Always use strong passwords and secure your database
-2. **Backup**: Regularly backup your database
-3. **Updates**: Keep dependencies updated for security patches
-4. **Monitoring**: Monitor your application for performance and errors
-5. **Testing**: Test thoroughly before deploying to production
+- [Next.js](https://nextjs.org/) - React framework
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [Radix UI](https://www.radix-ui.com/) - UI components
+- [Lucide](https://lucide.dev/) - Icon library
+- [MySQL](https://www.mysql.com/) - Database
+- [Nodemailer](https://nodemailer.com/) - Email service
 
-## 🔧 Troubleshooting
+---
 
-### Common Issues
+**Built with ❤️ by the Fleetly Team**
 
-1. **Database Connection Error**
-   - Check MySQL service is running
-   - Verify database credentials
-   - Ensure database exists
-
-2. **Email Not Sending**
-   - Verify email API credentials
-   - Check email service quotas
-   - Review email templates
-
-3. **Currency Conversion Not Working**
-   - Check exchange rate API key
-   - Verify internet connectivity
-   - Review API quotas
-
-For more detailed troubleshooting, check the application logs and error messages.
+*Fleetly - Streamline Your Fleet Operations*

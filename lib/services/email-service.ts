@@ -1,12 +1,7 @@
 "use client"
 
+import nodemailer from "nodemailer"
 import { executeQuery } from "../database/connection"
-
-// Email service configuration
-const EMAIL_API_URL = process.env.EMAIL_API_URL || "https://api.sendgrid.com/v3/mail/send"
-const EMAIL_API_KEY = process.env.EMAIL_API_KEY || ""
-const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@fleetly.com"
-const FROM_NAME = process.env.FROM_NAME || "Fleetly System"
 
 interface EmailData {
   to: string
@@ -38,16 +33,31 @@ interface SendEmailOptions {
 }
 
 export class EmailService {
+  private transporter: any
   private fromEmail: string
   private fromName: string
-  private apiUrl: string
-  private apiKey: string
 
   constructor() {
-    this.fromEmail = process.env.FROM_EMAIL || "noreply@fleetly.com"
+    this.fromEmail = process.env.GMAIL_USER || process.env.FROM_EMAIL || "noreply@fleetly.com"
     this.fromName = process.env.FROM_NAME || "Fleetly System"
-    this.apiUrl = process.env.EMAIL_API_URL || ""
-    this.apiKey = process.env.EMAIL_API_KEY || ""
+    this.initializeTransporter()
+  }
+
+  private initializeTransporter() {
+    // Gmail SMTP configuration
+    this.transporter = nodemailer.createTransporter({
+      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.GMAIL_USER, // Your Gmail address
+        pass: process.env.GMAIL_APP_PASSWORD, // Your Gmail App Password (not regular password)
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    })
   }
 
   // Send notification email
@@ -56,7 +66,8 @@ export class EmailService {
       const template = await this.getEmailTemplate(options.type, options.language || "en")
 
       if (!template) {
-        console.warn(`No email template found for type: ${options.type}`)
+        console.warn(`No email template found for type: ${options.type}, using default template`)
+        await this.sendDefaultEmail(options)
         return
       }
 
@@ -88,6 +99,19 @@ export class EmailService {
       console.error("Error sending notification email:", error)
       throw error
     }
+  }
+
+  // Send default email when no template is found
+  private async sendDefaultEmail(options: SendEmailOptions): Promise<void> {
+    const htmlContent = this.getDefaultHtmlTemplate(options.name, options.title, options.message, options.actionUrl)
+    const textContent = this.getDefaultTextTemplate(options.name, options.title, options.message, options.actionUrl)
+
+    await this.sendEmail({
+      to: options.to,
+      subject: options.title,
+      html: htmlContent,
+      text: textContent,
+    })
   }
 
   // Send welcome email
@@ -127,6 +151,91 @@ export class EmailService {
       })
     } catch (error) {
       console.error("Error sending password reset email:", error)
+    }
+  }
+
+  // Send maintenance reminder email
+  async sendMaintenanceReminder(
+    to: string,
+    name: string,
+    vehiclePlate: string,
+    serviceType: string,
+    dueDate: string,
+    language = "en",
+  ): Promise<void> {
+    try {
+      await this.sendNotificationEmail({
+        to,
+        name,
+        type: "maintenance_reminder",
+        title: `Maintenance Reminder: ${vehiclePlate}`,
+        message: `Your vehicle ${vehiclePlate} is due for ${serviceType} maintenance on ${dueDate}.`,
+        actionUrl: `${process.env.APP_URL}/maintenance`,
+        language,
+        variables: {
+          vehicle_plate: vehiclePlate,
+          service_type: serviceType,
+          due_date: dueDate,
+        },
+      })
+    } catch (error) {
+      console.error("Error sending maintenance reminder:", error)
+    }
+  }
+
+  // Send license expiry alert
+  async sendLicenseExpiryAlert(
+    to: string,
+    name: string,
+    driverName: string,
+    expiryDate: string,
+    language = "en",
+  ): Promise<void> {
+    try {
+      await this.sendNotificationEmail({
+        to,
+        name,
+        type: "license_expiry",
+        title: `License Expiry Alert: ${driverName}`,
+        message: `Driver ${driverName}'s license will expire on ${expiryDate}. Please renew immediately.`,
+        actionUrl: `${process.env.APP_URL}/drivers`,
+        language,
+        variables: {
+          driver_name: driverName,
+          expiry_date: expiryDate,
+        },
+      })
+    } catch (error) {
+      console.error("Error sending license expiry alert:", error)
+    }
+  }
+
+  // Send incident alert
+  async sendIncidentAlert(
+    to: string,
+    name: string,
+    incidentId: string,
+    vehiclePlate: string,
+    incidentType: string,
+    language = "en",
+  ): Promise<void> {
+    try {
+      await this.sendNotificationEmail({
+        to,
+        name,
+        type: "incident_alert",
+        title: `Incident Alert: ${incidentId}`,
+        message: `A new ${incidentType} incident has been reported for vehicle ${vehiclePlate}.`,
+        actionUrl: `${process.env.APP_URL}/incidents`,
+        language,
+        variables: {
+          incident_id: incidentId,
+          vehicle_plate: vehiclePlate,
+          incident_type: incidentType,
+        },
+      })
+    } catch (error) {
+      console.error("Error sending incident alert:", error)
     }
   }
 
@@ -172,7 +281,7 @@ export class EmailService {
     return result
   }
 
-  // Send email via external service
+  // Send email via Gmail SMTP
   private async sendEmail(options: {
     to: string
     subject: string
@@ -180,34 +289,26 @@ export class EmailService {
     text: string
   }): Promise<void> {
     try {
-      if (!this.apiUrl || !this.apiKey) {
-        console.warn("Email API not configured, skipping email send")
+      if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+        console.warn("Gmail credentials not configured, skipping email send")
+        console.log("📧 Email would be sent:", {
+          to: options.to,
+          subject: options.subject,
+          preview: options.text.substring(0, 100) + "...",
+        })
         return
       }
 
-      const response = await fetch(this.apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${this.apiKey}`,
-        },
-        body: JSON.stringify({
-          from: {
-            email: this.fromEmail,
-            name: this.fromName,
-          },
-          to: [{ email: options.to }],
-          subject: options.subject,
-          html: options.html,
-          text: options.text,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Email API error: ${response.status} ${response.statusText}`)
+      const mailOptions = {
+        from: `"${this.fromName}" <${this.fromEmail}>`,
+        to: options.to,
+        subject: options.subject,
+        text: options.text,
+        html: options.html,
       }
 
-      console.log(`✅ Email sent successfully to ${options.to}`)
+      const info = await this.transporter.sendMail(mailOptions)
+      console.log(`✅ Email sent successfully to ${options.to}`, info.messageId)
     } catch (error) {
       console.error("Error sending email:", error)
       throw error
@@ -217,24 +318,138 @@ export class EmailService {
   // Test email configuration
   async testEmailConfiguration(): Promise<boolean> {
     try {
-      if (!this.apiUrl || !this.apiKey) {
-        console.warn("Email API not configured")
+      if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+        console.warn("Gmail credentials not configured")
         return false
       }
 
-      // Send test email
-      await this.sendEmail({
-        to: "test@example.com",
-        subject: "Fleetly Email Test",
-        html: "<p>This is a test email from Fleetly.</p>",
-        text: "This is a test email from Fleetly.",
-      })
+      // Verify transporter configuration
+      await this.transporter.verify()
+      console.log("✅ Gmail SMTP configuration is valid")
 
       return true
     } catch (error) {
-      console.error("Email configuration test failed:", error)
+      console.error("Gmail configuration test failed:", error)
       return false
     }
+  }
+
+  // Default HTML template
+  private getDefaultHtmlTemplate(name: string, title: string, message: string, actionUrl?: string): string {
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+      line-height: 1.6; 
+      color: #333; 
+      margin: 0; 
+      padding: 0; 
+      background-color: #f5f5f5; 
+    }
+    .container { 
+      max-width: 600px; 
+      margin: 0 auto; 
+      background: white; 
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .header { 
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8); 
+      color: white; 
+      padding: 30px; 
+      text-align: center; 
+    }
+    .content { 
+      padding: 30px; 
+    }
+    .footer { 
+      background: #f9fafb; 
+      padding: 20px; 
+      text-align: center; 
+      color: #6b7280; 
+      font-size: 14px; 
+    }
+    .button { 
+      display: inline-block; 
+      background: #3b82f6; 
+      color: white; 
+      padding: 12px 24px; 
+      text-decoration: none; 
+      border-radius: 6px; 
+      margin: 15px 0; 
+    }
+    .logo { 
+      font-size: 24px; 
+      font-weight: bold; 
+    }
+    .message-box {
+      background: #f0f9ff;
+      border-left: 4px solid #3b82f6;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">🚗 Fleetly</div>
+      <h1>${title}</h1>
+    </div>
+    <div class="content">
+      <p>Hello ${name},</p>
+      
+      <div class="message-box">
+        <p>${message}</p>
+      </div>
+      
+      ${
+        actionUrl
+          ? `
+        <div style="text-align: center;">
+          <a href="${actionUrl}" class="button">Take Action</a>
+        </div>
+      `
+          : ""
+      }
+      
+      <p>Best regards,<br>The Fleetly Team</p>
+    </div>
+    <div class="footer">
+      <p>This is an automated message from Fleetly Fleet Management System</p>
+      <p>© ${new Date().getFullYear()} Fleetly. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+    `
+  }
+
+  // Default text template
+  private getDefaultTextTemplate(name: string, title: string, message: string, actionUrl?: string): string {
+    return `
+${title}
+
+Hello ${name},
+
+${message}
+
+${actionUrl ? `Take Action: ${actionUrl}` : ""}
+
+Best regards,
+The Fleetly Team
+
+This is an automated message from Fleetly Fleet Management System
+© ${new Date().getFullYear()} Fleetly. All rights reserved.
+    `.trim()
   }
 }
 
