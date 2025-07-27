@@ -1,0 +1,181 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "add": "Agregar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "actions": "Acciones",
+    "status": "Estado",
+    "date": "Fecha",
+    "name": "Nombre",
+    "email": "Correo",
+    "phone": "Teléfono",
+    "address": "Dirección",
+    "notes": "Notas",
+    "description": "Descripción",
+    "total": "Total",
+    "cost": "Costo",
+    "quantity": "Cantidad",
+    "location": "Ubicación"
+  },
+  "navigation": {
+    "dashboard": "Panel",
+    "vehicles": "Vehículos",
+    "drivers": "Conductores",
+    "maintenance": "Mantenimiento",
+    "fuel": "Combustible",
+    "incidents": "Incidentes",
+    "reports": "Reportes",
+    "settings": "Configuración"
+  },
+  "dashboard": {
+    "title": "Panel de Control",
+    "subtitle": "¡Bienvenido de vuelta! Esto es lo que está pasando con tu flota hoy.",
+    "totalVehicles": "Total de Vehículos",
+    "activeDrivers": "Conductores Activos",
+    "inMaintenance": "En Mantenimiento",
+    "avgFuelEfficiency": "Eficiencia Promedio de Combustible",
+    "upcomingMaintenance": "Mantenimiento Próximo",
+    "recentActivity": "Actividad Reciente",
+    "quickActions": "Acciones Rápidas"
+  },
+  "vehicles": {
+    "title": "Vehículos",
+    "subtitle": "Gestiona los vehículos de tu flota y su información",
+    "addVehicle": "Agregar Vehículo",
+    "licensePlate": "Placa",
+    "make": "Marca",
+    "model": "Modelo",
+    "year": "Año",
+    "vin": "VIN",
+    "currentDriver": "Conductor Actual",
+    "nextService": "Próximo Servicio",
+    "mileage": "Kilometraje",
+    "fuelType": "Tipo de Combustible",
+    "status": {
+      "active": "Activo",
+      "maintenance": "Mantenimiento",
+      "outOfService": "Fuera de Servicio"
+    }
+  },
+  "drivers": {
+    "title": "Conductores",
+    "subtitle": "Gestiona los conductores de tu flota y su información",
+    "addDriver": "Agregar Conductor",
+    "employeeId": "ID de Empleado",
+    "licenseNumber": "Número de Licencia",
+    "licenseExpiry": "Vencimiento de Licencia",
+    "assignedVehicle": "Vehículo Asignado",
+    "emergencyContact": "Contacto de Emergencia",
+    "status": {
+      "active": "Activo",
+      "onLeave": "De Licencia",
+      "suspended": "Suspendido"
+    }
+  },
+  "maintenance": {
+    "title": "Mantenimiento",
+    "subtitle": "Programa y rastrea las tareas de mantenimiento de vehículos",
+    "scheduleMaintenance": "Programar Mantenimiento",
+    "serviceType": "Tipo de Servicio",
+    "scheduledDate": "Fecha Programada",
+    "dueDate": "Fecha de Vencimiento",
+    "mechanic": "Mecánico",
+    "estimatedCost": "Costo Estimado",
+    "actualCost": "Costo Real",
+    "status": {
+      "scheduled": "Programado",
+      "inProgress": "En Progreso",
+      "completed": "Completado",
+      "overdue": "Vencido"
+    }
+  },
+  "fuel": {
+    "title": "Gestión de Combustible",
+    "subtitle": "Rastrea el consumo de combustible y analiza los costos en tu flota",
+    "addFuelEntry": "Agregar Entrada de Combustible",
+    "odometerReading": "Lectura del Odómetro",
+    "unitCost": "Costo por Unidad",
+    "totalCost": "Costo Total",
+    "fuelConsumption": "Consumo de Combustible",
+    "fuelEfficiency": "Eficiencia de Combustible"
+  },
+  "incidents": {
+    "title": "Incidentes",
+    "subtitle": "Rastrea y gestiona incidentes de la flota y reportes de seguridad",
+    "reportIncident": "Reportar Incidente",
+    "incidentId": "ID de Incidente",
+    "type": "Tipo",
+    "severity": "Severidad",
+    "reportedBy": "Reportado Por",
+    "types": {
+      "accident": "Accidente",
+      "breakdown": "Avería",
+      "violation": "Violación",
+      "other": "Otro"
+    },
+    "severity": {
+      "low": "Bajo",
+      "medium": "Medio",
+      "high": "Alto",
+      "critical": "Crítico"
+    },
+    "status": {
+      "reported": "Reportado",
+      "investigating": "Investigando",
+      "resolved": "Resuelto",
+      "closed": "Cerrado"
+    }
+  },
+  "reports": {
+    "title": "Reportes y Análisis",
+    "subtitle": "Genera insights y analiza el rendimiento de tu flota",
+    "fleetUtilization": "Utilización de Flota",
+    "maintenanceCosts": "Costos de Mantenimiento",
+    "driverPerformance": "Rendimiento del Conductor",
+    "fuelEfficiency": "Eficiencia de Combustible"
+  },
+  "settings": {
+    "title": "Configuración",
+    "subtitle": "Gestiona la configuración de tu sistema de gestión de flotas",
+    "general": "General",
+    "profile": "Perfil",
+    "notifications": "Notificaciones",
+    "security": "Seguridad",
+    "integrations": "Integraciones",
+    "system": "Sistema",
+    "companyInfo": "Información de la Empresa",
+    "companyName": "Nombre de la Empresa",
+    "timezone": "Zona Horaria",
+    "language": "Idioma",
+    "theme": "Tema",
+    "currency": "Moneda"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "register": "Registrarse",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "rememberMe": "Recordarme",
+    "welcomeBack": "¡Bienvenido de vuelta!",
+    "signInToAccount": "Inicia sesión en tu cuenta de gestión de flotas"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "markAllRead": "Marcar todas como leídas",
+    "noNotifications": "Sin notificaciones",
+    "maintenanceReminder": "Recordatorio de Mantenimiento",
+    "licenseExpiry": "Vencimiento de Licencia",
+    "documentExpiry": "Vencimiento de Documento",
+    "incidentAlert": "Alerta de Incidente",
+    "systemAlert": "Alerta del Sistema"
+  }
+}

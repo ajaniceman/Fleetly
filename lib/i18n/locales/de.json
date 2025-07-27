@@ -1,0 +1,181 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view": "Anzeigen",
+    "add": "Hinzufügen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "actions": "Aktionen",
+    "status": "Status",
+    "date": "Datum",
+    "name": "Name",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "address": "Adresse",
+    "notes": "Notizen",
+    "description": "Beschreibung",
+    "total": "Gesamt",
+    "cost": "Kosten",
+    "quantity": "Menge",
+    "location": "Standort"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "vehicles": "Fahrzeuge",
+    "drivers": "Fahrer",
+    "maintenance": "Wartung",
+    "fuel": "Kraftstoff",
+    "incidents": "Vorfälle",
+    "reports": "Berichte",
+    "settings": "Einstellungen"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Willkommen zurück! Hier ist, was heute mit Ihrer Flotte passiert.",
+    "totalVehicles": "Gesamte Fahrzeuge",
+    "activeDrivers": "Aktive Fahrer",
+    "inMaintenance": "In Wartung",
+    "avgFuelEfficiency": "Durchschnittliche Kraftstoffeffizienz",
+    "upcomingMaintenance": "Anstehende Wartung",
+    "recentActivity": "Letzte Aktivität",
+    "quickActions": "Schnellaktionen"
+  },
+  "vehicles": {
+    "title": "Fahrzeuge",
+    "subtitle": "Verwalten Sie Ihre Flottenfahrzeuge und deren Informationen",
+    "addVehicle": "Fahrzeug Hinzufügen",
+    "licensePlate": "Kennzeichen",
+    "make": "Marke",
+    "model": "Modell",
+    "year": "Jahr",
+    "vin": "VIN",
+    "currentDriver": "Aktueller Fahrer",
+    "nextService": "Nächster Service",
+    "mileage": "Kilometerstand",
+    "fuelType": "Kraftstoffart",
+    "status": {
+      "active": "Aktiv",
+      "maintenance": "Wartung",
+      "outOfService": "Außer Betrieb"
+    }
+  },
+  "drivers": {
+    "title": "Fahrer",
+    "subtitle": "Verwalten Sie Ihre Flottenfahrer und deren Informationen",
+    "addDriver": "Fahrer Hinzufügen",
+    "employeeId": "Mitarbeiter-ID",
+    "licenseNumber": "Führerscheinnummer",
+    "licenseExpiry": "Führerschein Ablauf",
+    "assignedVehicle": "Zugewiesenes Fahrzeug",
+    "emergencyContact": "Notfallkontakt",
+    "status": {
+      "active": "Aktiv",
+      "onLeave": "Im Urlaub",
+      "suspended": "Suspendiert"
+    }
+  },
+  "maintenance": {
+    "title": "Wartung",
+    "subtitle": "Planen und verfolgen Sie Fahrzeugwartungsaufgaben",
+    "scheduleMaintenance": "Wartung Planen",
+    "serviceType": "Servicetyp",
+    "scheduledDate": "Geplantes Datum",
+    "dueDate": "Fälligkeitsdatum",
+    "mechanic": "Mechaniker",
+    "estimatedCost": "Geschätzte Kosten",
+    "actualCost": "Tatsächliche Kosten",
+    "status": {
+      "scheduled": "Geplant",
+      "inProgress": "In Bearbeitung",
+      "completed": "Abgeschlossen",
+      "overdue": "Überfällig"
+    }
+  },
+  "fuel": {
+    "title": "Kraftstoffverwaltung",
+    "subtitle": "Verfolgen Sie den Kraftstoffverbrauch und analysieren Sie die Kosten Ihrer Flotte",
+    "addFuelEntry": "Kraftstoffeintrag Hinzufügen",
+    "odometerReading": "Kilometerstand",
+    "unitCost": "Stückkosten",
+    "totalCost": "Gesamtkosten",
+    "fuelConsumption": "Kraftstoffverbrauch",
+    "fuelEfficiency": "Kraftstoffeffizienz"
+  },
+  "incidents": {
+    "title": "Vorfälle",
+    "subtitle": "Verfolgen und verwalten Sie Flottenvorfälle und Sicherheitsberichte",
+    "reportIncident": "Vorfall Melden",
+    "incidentId": "Vorfall-ID",
+    "type": "Typ",
+    "severity": "Schweregrad",
+    "reportedBy": "Gemeldet Von",
+    "types": {
+      "accident": "Unfall",
+      "breakdown": "Panne",
+      "violation": "Verstoß",
+      "other": "Andere"
+    },
+    "severity": {
+      "low": "Niedrig",
+      "medium": "Mittel",
+      "high": "Hoch",
+      "critical": "Kritisch"
+    },
+    "status": {
+      "reported": "Gemeldet",
+      "investigating": "Untersuchung",
+      "resolved": "Gelöst",
+      "closed": "Geschlossen"
+    }
+  },
+  "reports": {
+    "title": "Berichte & Analysen",
+    "subtitle": "Generieren Sie Einblicke und analysieren Sie die Leistung Ihrer Flotte",
+    "fleetUtilization": "Flottenauslastung",
+    "maintenanceCosts": "Wartungskosten",
+    "driverPerformance": "Fahrerleistung",
+    "fuelEfficiency": "Kraftstoffeffizienz"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Verwalten Sie die Konfiguration Ihres Flottenmanagementsystems",
+    "general": "Allgemein",
+    "profile": "Profil",
+    "notifications": "Benachrichtigungen",
+    "security": "Sicherheit",
+    "integrations": "Integrationen",
+    "system": "System",
+    "companyInfo": "Firmeninformationen",
+    "companyName": "Firmenname",
+    "timezone": "Zeitzone",
+    "language": "Sprache",
+    "theme": "Design",
+    "currency": "Währung"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "register": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "confirmPassword": "Passwort Bestätigen",
+    "forgotPassword": "Passwort vergessen?",
+    "rememberMe": "Angemeldet bleiben",
+    "welcomeBack": "Willkommen zurück!",
+    "signInToAccount": "Melden Sie sich bei Ihrem Flottenmanagement-Konto an"
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "markAllRead": "Alle als gelesen markieren",
+    "noNotifications": "Keine Benachrichtigungen",
+    "maintenanceReminder": "Wartungserinnerung",
+    "licenseExpiry": "Führerschein Ablauf",
+    "documentExpiry": "Dokument Ablauf",
+    "incidentAlert": "Vorfall Warnung",
+    "systemAlert": "System Warnung"
+  }
+}
