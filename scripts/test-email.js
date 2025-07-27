@@ -1,96 +1,127 @@
 const nodemailer = require("nodemailer")
 require("dotenv").config({ path: ".env.local" })
 
-async function testEmailConfiguration() {
-  console.log("🧪 Testing Gmail SMTP configuration...\n")
+async function testEmailConnection() {
+  console.log("🧪 Testing Gmail SMTP connection...\n")
 
   // Check environment variables
   if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-    console.error("❌ Missing Gmail credentials in environment variables")
-    console.log("Please set GMAIL_USER and GMAIL_APP_PASSWORD in your .env.local file")
-    return
+    console.error("❌ Missing required environment variables:")
+    console.error("   - GMAIL_USER")
+    console.error("   - GMAIL_APP_PASSWORD")
+    console.error("\nPlease check your .env.local file")
+    process.exit(1)
   }
+
+  console.log("📧 Gmail User:", process.env.GMAIL_USER)
+  console.log("🔑 App Password:", process.env.GMAIL_APP_PASSWORD ? "✓ Set" : "❌ Missing")
+  console.log("")
 
   // Create transporter
   const transporter = nodemailer.createTransporter({
     service: "gmail",
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD,
     },
-    tls: {
-      rejectUnauthorized: false,
-    },
   })
 
   try {
-    // Verify connection
+    // Test connection
     console.log("🔍 Verifying SMTP connection...")
     await transporter.verify()
     console.log("✅ SMTP connection verified successfully!\n")
 
     // Send test email
-    console.log("📧 Sending test email...")
-    const info = await transporter.sendMail({
-      from: `"Fleetly System" <${process.env.GMAIL_USER}>`,
+    console.log("📤 Sending test email...")
+    const testEmail = {
+      from: `${process.env.FROM_NAME || "Fleetly System"} <${process.env.GMAIL_USER}>`,
       to: process.env.GMAIL_USER, // Send to yourself
-      subject: "Fleetly Email Configuration Test",
-      text: "This is a test email from your Fleetly application. If you receive this, your email configuration is working correctly!",
+      subject: "🧪 Fleetly Email Test - Success!",
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 20px; text-align: center;">
-            <h1>🚗 Fleetly Email Test</h1>
-          </div>
-          <div style="padding: 20px;">
-            <p>Congratulations! Your Gmail SMTP configuration is working correctly.</p>
-            <p>This test email was sent from your Fleetly application using:</p>
-            <ul>
-              <li><strong>Gmail Account:</strong> ${process.env.GMAIL_USER}</li>
-              <li><strong>SMTP Server:</strong> smtp.gmail.com</li>
-              <li><strong>Port:</strong> 587</li>
-            </ul>
-            <p>You can now receive notifications for:</p>
-            <ul>
-              <li>Maintenance reminders</li>
-              <li>License expiry alerts</li>
-              <li>Incident notifications</li>
-              <li>Welcome emails</li>
-              <li>Password reset requests</li>
-            </ul>
-          </div>
-          <div style="background: #f9fafb; padding: 15px; text-align: center; color: #6b7280; font-size: 14px;">
-            <p>This is an automated test message from Fleetly Fleet Management System</p>
-          </div>
-        </div>
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              .header { background: #059669; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+              .content { background: #f8fafc; padding: 30px; border-radius: 0 0 8px 8px; }
+              .success { background: #d1fae5; border-left: 4px solid #059669; padding: 15px; margin: 20px 0; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>🎉 Email Test Successful!</h1>
+              </div>
+              <div class="content">
+                <div class="success">
+                  <strong>✅ Gmail Integration Working</strong><br>
+                  Your Fleetly system can now send emails successfully!
+                </div>
+                
+                <h3>Test Details:</h3>
+                <ul>
+                  <li><strong>From:</strong> ${process.env.GMAIL_USER}</li>
+                  <li><strong>Service:</strong> Gmail SMTP</li>
+                  <li><strong>Time:</strong> ${new Date().toLocaleString()}</li>
+                  <li><strong>Status:</strong> ✅ Success</li>
+                </ul>
+                
+                <p>Your Fleetly fleet management system is now ready to send:</p>
+                <ul>
+                  <li>🔧 Maintenance reminders</li>
+                  <li>📋 License expiry alerts</li>
+                  <li>🎉 Welcome emails</li>
+                  <li>🚨 Incident notifications</li>
+                </ul>
+                
+                <p><em>This is an automated test message from your Fleetly system.</em></p>
+              </div>
+            </div>
+          </body>
+        </html>
       `,
-    })
+      text: `
+        EMAIL TEST SUCCESSFUL!
+        
+        Your Fleetly system can now send emails successfully!
+        
+        Test Details:
+        - From: ${process.env.GMAIL_USER}
+        - Service: Gmail SMTP
+        - Time: ${new Date().toLocaleString()}
+        - Status: Success
+        
+        Your system is ready to send maintenance reminders, license alerts, welcome emails, and incident notifications.
+      `,
+    }
 
+    const result = await transporter.sendMail(testEmail)
     console.log("✅ Test email sent successfully!")
-    console.log(`📬 Message ID: ${info.messageId}`)
-    console.log(`📧 Check your inbox at: ${process.env.GMAIL_USER}\n`)
+    console.log("📧 Message ID:", result.messageId)
+    console.log("📬 Check your Gmail inbox for the test email\n")
 
-    console.log("🎉 Gmail configuration test completed successfully!")
-    console.log("Your Fleetly application is ready to send email notifications.")
+    console.log("🎉 Gmail integration is working perfectly!")
+    console.log("🚀 Your Fleetly system is ready for production!")
   } catch (error) {
-    console.error("❌ Email configuration test failed:")
-    console.error(error.message)
+    console.error("❌ Email test failed:")
+    console.error("Error:", error.message)
 
     if (error.code === "EAUTH") {
-      console.log("\n💡 Authentication failed. Please check:")
-      console.log("1. Your Gmail address is correct")
-      console.log("2. You have enabled 2-Factor Authentication")
-      console.log("3. You have generated an App Password (not your regular password)")
-      console.log("4. The App Password is correctly set in GMAIL_APP_PASSWORD")
-    } else if (error.code === "ECONNECTION") {
-      console.log("\n💡 Connection failed. Please check:")
-      console.log("1. Your internet connection")
-      console.log("2. Firewall settings")
-      console.log("3. Gmail SMTP is not blocked")
+      console.error("\n💡 Authentication failed. Please check:")
+      console.error("   1. Gmail 2-Factor Authentication is enabled")
+      console.error("   2. App Password is correctly generated")
+      console.error("   3. GMAIL_APP_PASSWORD in .env.local is correct")
+    } else if (error.code === "ENOTFOUND") {
+      console.error("\n💡 Network error. Please check your internet connection.")
     }
+
+    process.exit(1)
   }
 }
 
-testEmailConfiguration()
+// Run the test
+testEmailConnection()

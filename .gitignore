@@ -4,7 +4,6 @@
 /node_modules
 /.pnp
 .pnp.js
-.yarn/install-state.gz
 
 # Testing
 /coverage
@@ -128,6 +127,8 @@ temp/
 # Uploads
 /uploads/*
 !/uploads/.gitkeep
+uploads/
+public/uploads/
 
 # SSL certificates
 *.key
@@ -137,20 +138,41 @@ temp/
 # Docker
 docker-compose.override.yml
 
-# Backup files
-*.backup
-*.bak
+# Local development
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build artifacts
+build/
+dist/
+out/
 
 # Cache
 .cache/
+.parcel-cache/
+.next/cache/
 
-# Local development
-.local
+# Serverless
+.serverless/
 
-# Test files
-test-results/
-playwright-report/
-playwright/.cache/
+# FuseBox cache
+.fusebox/
 
-# Environment variables backup
-.env.backup
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# Temporary files
+*.tmp
+*.temp
