@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:18-bullseye AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -7,6 +7,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
+RUN ls -la && cat package-lock.json
 RUN npm ci --verbose
 
 # Rebuild the source code only when needed
