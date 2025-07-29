@@ -30,27 +30,32 @@ import {
 } from "lucide-react"
 import { mockIncidents, mockVehicles, mockDrivers } from "@/lib/data"
 
+// Import your defined types
+import { Incident, Vehicle, Driver } from "@/lib/types"
+
 export default function IncidentsPage() {
-  const [incidents, setIncidents] = useState(mockIncidents)
+  const [incidents, setIncidents] = useState<Incident[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Simulate loading
     const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
+      // Your mock data already perfectly matches your types.ts now!
+      setIncidents(mockIncidents);
+      setIsLoading(false);
+    }, 1000);
 
-    return () => clearTimeout(timer)
-  }, [])
+    return () => clearTimeout(timer);
+  }, []);
 
   const filteredIncidents = incidents.filter(
     (incident) =>
-      incident.incident_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // Use incident.id for filtering, as this is the ID in your mock data
+      incident.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
       incident.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
       incident.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       incident.location.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -80,20 +85,21 @@ export default function IncidentsPage() {
     }
   }
 
-  const getVehicleInfo = (vehicleId: number) => {
-    const vehicle = mockVehicles.find((v) => v.id === vehicleId)
-    return vehicle ? `${vehicle.license_plate} (${vehicle.make} ${vehicle.model})` : `Vehicle ${vehicleId}`
-  }
+  const getVehicleInfo = (vehicleId: string) => { // vehicleId is string
+    const vehicle = mockVehicles.find((v) => v.id === vehicleId); 
+    return vehicle ? `${vehicle.licensePlate} (${vehicle.make} ${vehicle.model})` : `Vehicle ${vehicleId}`;
+  };
 
-  const getDriverInfo = (driverId: number) => {
-    const driver = mockDrivers.find((d) => d.id === driverId)
-    return driver ? driver.name : `Driver ${driverId}`
-  }
+  const getDriverInfo = (driverId: string) => { // driverId is string
+    const driver = mockDrivers.find((d) => d.id === driverId); 
+    // Access firstName and lastName as per your Driver interface
+    return driver ? `${driver.firstName} ${driver.lastName}` : `Driver ${driverId}`;
+  };
 
-  const totalCost = incidents.reduce((sum, incident) => sum + incident.cost, 0)
-  const resolvedIncidents = incidents.filter((i) => i.status === "resolved").length
-  const pendingIncidents = incidents.filter((i) => i.status === "investigating" || i.status === "pending").length
-  const criticalIncidents = incidents.filter((i) => i.severity === "critical").length
+  const totalCost = incidents.reduce((sum, incident) => sum + (incident.cost || 0), 0);
+  const resolvedIncidents = incidents.filter((i) => i.status === "resolved").length;
+  const pendingIncidents = incidents.filter((i) => i.status === "investigating" || i.status === "pending").length;
+  const criticalIncidents = incidents.filter((i) => i.severity === "critical").length;
 
   if (isLoading) {
     return (
@@ -102,7 +108,7 @@ export default function IncidentsPage() {
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
         </div>
       </DashboardLayout>
-    )
+    );
   }
 
   return (
@@ -212,10 +218,11 @@ export default function IncidentsPage() {
                 <TableBody>
                   {filteredIncidents.map((incident) => (
                     <TableRow key={incident.id}>
-                      <TableCell className="font-medium">{incident.incident_id}</TableCell>
-                      <TableCell>{incident.date.toLocaleDateString()}</TableCell>
-                      <TableCell>{getVehicleInfo(incident.vehicle_id)}</TableCell>
-                      <TableCell>{getDriverInfo(incident.driver_id)}</TableCell>
+                      {/* Use incident.id as the Incident ID, matching your mock data */}
+                      <TableCell className="font-medium">{incident.id}</TableCell> 
+                      <TableCell>{new Date(incident.date).toLocaleDateString()}</TableCell> 
+                      <TableCell>{getVehicleInfo(incident.vehicleId)}</TableCell>
+                      <TableCell>{getDriverInfo(incident.driverId)}</TableCell>
                       <TableCell className="capitalize">{incident.type}</TableCell>
                       <TableCell>
                         <Badge variant={getSeverityColor(incident.severity)}>{incident.severity}</Badge>
@@ -223,7 +230,7 @@ export default function IncidentsPage() {
                       <TableCell>
                         <Badge variant={getStatusColor(incident.status)}>{incident.status}</Badge>
                       </TableCell>
-                      <TableCell>${incident.cost.toFixed(2)}</TableCell>
+                      <TableCell>${incident.cost?.toFixed(2) || '0.00'}</TableCell>
                       <TableCell className="max-w-xs truncate">{incident.location}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
@@ -277,7 +284,7 @@ export default function IncidentsPage() {
                   </div>
                 </div>
                 <CardDescription>
-                  Vehicle ID: {incident.vehicle_id} • Driver ID: {incident.driver_id}
+                  Vehicle ID: {incident.vehicleId} • Driver ID: {incident.driverId}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -285,7 +292,7 @@ export default function IncidentsPage() {
                   <p className="text-sm font-medium">{incident.description}</p>
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="h-4 w-4 mr-2" />
-                    {incident.date.toLocaleDateString()}
+                    {new Date(incident.date).toLocaleDateString()} 
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <MapPin className="h-4 w-4 mr-2" />
@@ -308,5 +315,5 @@ export default function IncidentsPage() {
         </div>
       </div>
     </DashboardLayout>
-  )
+  );
 }
