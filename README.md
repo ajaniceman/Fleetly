@@ -1,176 +1,128 @@
-# 🚗 Fleetly - Advanced Fleet Management System
+# 🚗 Fleetly - Fleet Management System
 
-A comprehensive, production-ready fleet management solution built with Next.js, TypeScript, and MySQL. Features real-time tracking, maintenance scheduling, driver management, and intelligent reporting.
+A comprehensive fleet management system built with Next.js, MySQL, and Gmail integration for automated notifications.
 
 ## ✨ Features
 
-### 🚛 **Vehicle Management**
-- Complete vehicle inventory with detailed specifications
-- Real-time status tracking (Active, Maintenance, Out of Service)
-- Fuel efficiency monitoring and analytics
-- Insurance and registration tracking
-- Vehicle assignment and history
+- **🚗 Vehicle Management** - Complete vehicle tracking and information management
+- **👥 Driver Management** - Driver profiles, license tracking, and performance monitoring
+- **🔧 Maintenance Scheduling** - Automated maintenance reminders and tracking
+- **⛽ Fuel Management** - Fuel consumption monitoring and cost analysis
+- **📊 Comprehensive Reporting** - Detailed analytics and reporting dashboard
+- **🚨 Incident Management** - Incident reporting and tracking system
+- **📧 Email Notifications** - Automated Gmail notifications for important events
+- **🌍 Multi-language Support** - Support for English, Spanish, French, German, and Bosnian
+- **💱 Multi-currency Support** - Real-time currency conversion
+- **🔐 Secure Authentication** - JWT-based authentication system
+- **📱 Responsive Design** - Mobile-friendly interface
 
-### 👥 **Driver Management**
-- Driver profiles with license verification
-- Performance tracking and scoring
-- License expiry alerts and notifications
-- Assignment history and availability status
-- Contact information and emergency contacts
-
-### 🔧 **Maintenance System**
-- Preventive maintenance scheduling
-- Work order management with status tracking
-- Cost tracking and budget analysis
-- Automated email reminders
-- Maintenance history and reports
-
-### ⛽ **Fuel Management**
-- Fuel consumption tracking
-- Cost analysis and budgeting
-- Efficiency reports per vehicle/driver
-- Fuel card integration ready
-- Consumption trend analysis
-
-### 📊 **Advanced Analytics**
-- Real-time dashboard with key metrics
-- Cost analysis and budget tracking
-- Performance reports and insights
-- Maintenance cost optimization
-- Driver performance analytics
-
-### 🔔 **Smart Notifications**
-- Email alerts for maintenance due dates
-- License expiry notifications
-- System-wide announcement system
-- Real-time status updates
-- Customizable notification preferences
-
-### 🌍 **Multi-Language Support**
-- English, Spanish, French, German
-- Easy language switching
-- Localized date and number formats
-- RTL language support ready
-
-### 💰 **Multi-Currency Support**
-- Real-time currency conversion
-- Support for major world currencies
-- Localized pricing displays
-- Historical exchange rate tracking
-
-## 🛠️ **Technology Stack**
-
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, Radix UI Components
-- **Database**: MySQL with connection pooling
-- **Authentication**: JWT with bcrypt encryption
-- **Email**: Gmail SMTP integration
-- **Deployment**: Docker, Vercel ready
-- **Testing**: Jest, React Testing Library
-
-## 🚀 **Quick Start**
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ and npm 8+
+
+- Node.js 18+ 
 - MySQL 8.0+
 - Gmail account with App Password
 
-### 1. Clone and Install
-\`\`\`bash
-git clone https://github.com/yourusername/fleetly.git
-cd fleetly
-npm install
-\`\`\`
+### Installation
 
-### 2. Environment Setup
-\`\`\`bash
-cp .env.example .env.local
-\`\`\`
+1. **Clone the repository**
+   \`\`\`bash
+   git clone https://github.com/ajaniceman/fleetly.git
+   cd fleetly
+   \`\`\`
 
-Edit `.env.local` with your configuration:
+2. **Install dependencies**
+   \`\`\`bash
+   npm install --legacy-peer-deps
+   \`\`\`
+
+3. **Setup environment variables**
+   \`\`\`bash
+   cp .env.example .env.local
+   # Edit .env.local with your actual values
+   \`\`\`
+
+4. **Setup Gmail App Password**
+   - Enable 2-Factor Authentication on Gmail
+   - Generate App Password: Google Account → Security → App passwords
+   - Copy the 16-character password (remove spaces!)
+
+5. **Setup MySQL database**
+   \`\`\`sql
+   CREATE DATABASE fleetly_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   CREATE USER 'fleetly_user'@'localhost' IDENTIFIED BY 'secure_password';
+   GRANT ALL PRIVILEGES ON fleetly_db.* TO 'fleetly_user'@'localhost';
+   FLUSH PRIVILEGES;
+   \`\`\`
+
+6. **Run database migration**
+   \`\`\`bash
+   npm run db:migrate
+   \`\`\`
+
+7. **Test email configuration**
+   \`\`\`bash
+   npm run email:test
+   \`\`\`
+
+8. **Start development server**
+   \`\`\`bash
+   npm run dev
+   \`\`\`
+
+Visit `http://localhost:3000` to access Fleetly!
+
+## 📧 Email Configuration
+
+Fleetly uses Gmail SMTP for sending notifications. Configure these environment variables:
+
 \`\`\`env
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=fleetly_user
-DB_PASSWORD=your_secure_password
-DB_NAME=fleetly_db
-
-# Gmail Configuration
 GMAIL_USER=your-email@gmail.com
-GMAIL_APP_PASSWORD=your-16-char-app-password
+GMAIL_APP_PASSWORD=abcdefghijklmnop  # No spaces!
 FROM_NAME=Fleetly System
-
-# Security
-JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters
-
-# Application
-NEXT_PUBLIC_APP_URL=http://localhost:3000
 \`\`\`
 
-### 3. Database Setup
-\`\`\`bash
-# Create database and user in MySQL
-mysql -u root -p
-CREATE DATABASE fleetly_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'fleetly_user'@'localhost' IDENTIFIED BY 'your_secure_password';
-GRANT ALL PRIVILEGES ON fleetly_db.* TO 'fleetly_user'@'localhost';
-FLUSH PRIVILEGES;
-exit
+### Email Features
 
-# Run migrations
-npm run db:migrate
-\`\`\`
+- **Maintenance Reminders** - Automated alerts for upcoming maintenance
+- **License Expiry Alerts** - Notifications for expiring driver licenses
+- **Welcome Emails** - New user onboarding emails
+- **Incident Alerts** - Immediate notifications for reported incidents
 
-### 4. Gmail Setup
-1. Enable 2-Factor Authentication on your Gmail
-2. Generate App Password: [Google Account Settings](https://myaccount.google.com/) → Security → App passwords
-3. Test email configuration:
-\`\`\`bash
-npm run email:test
-\`\`\`
+## 🗄️ Database Schema
 
-### 5. Start Development
-\`\`\`bash
-npm run dev
-\`\`\`
+The system includes comprehensive database tables for:
 
-Visit `http://localhost:3000` and login with:
-- **Email**: admin@fleetly.com
-- **Password**: admin123
+- Users and authentication
+- Vehicles and specifications
+- Drivers and licenses
+- Maintenance schedules and records
+- Fuel consumption tracking
+- Incident reporting
+- Email templates and notifications
 
-## 🐳 **Docker Deployment**
+## 🚀 Deployment
 
-### Quick Deploy with Docker Compose
-\`\`\`bash
-# Start all services
-docker-compose up -d
+### Option 1: Vercel (Recommended)
 
-# View logs
-docker-compose logs -f fleetly-app
-
-# Stop services
-docker-compose down
-\`\`\`
-
-### Manual Docker Build
-\`\`\`bash
-# Build image
-docker build -t fleetly .
-
-# Run container
-docker run -p 3000:3000 --env-file .env.local fleetly
-\`\`\`
-
-## ☁️ **Cloud Deployment**
-
-### Vercel (Recommended)
-1. Push code to GitHub
+1. Push to GitHub
 2. Connect repository to Vercel
 3. Add environment variables in Vercel dashboard
-4. Deploy automatically on push
+4. Deploy automatically
 
-### Manual Server Deployment
+### Option 2: Docker
+
+\`\`\`bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# Check logs
+docker-compose logs -f fleetly-app
+\`\`\`
+
+### Option 3: Manual Server
+
 \`\`\`bash
 # Build for production
 npm run build
@@ -179,127 +131,105 @@ npm run build
 npm start
 \`\`\`
 
-## 📁 **Project Structure**
+## 🔧 Environment Variables
 
-\`\`\`
-fleetly/
-├── app/                    # Next.js App Router pages
-│   ├── dashboard/         # Dashboard pages
-│   ├── vehicles/          # Vehicle management
-│   ├── drivers/           # Driver management
-│   ├── maintenance/       # Maintenance system
-│   ├── fuel/             # Fuel management
-│   └── reports/          # Analytics and reports
-├── components/            # Reusable UI components
-│   ├── ui/               # Base UI components
-│   └── layout/           # Layout components
-├── lib/                  # Utilities and services
-│   ├── services/         # Business logic services
-│   ├── database/         # Database connection
-│   └── i18n/            # Internationalization
-├── database/             # Database schema and migrations
-└── scripts/              # Utility scripts
-\`\`\`
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `DB_HOST` | MySQL host | ✅ |
+| `DB_PORT` | MySQL port | ✅ |
+| `DB_USER` | MySQL username | ✅ |
+| `DB_PASSWORD` | MySQL password | ✅ |
+| `DB_NAME` | Database name | ✅ |
+| `GMAIL_USER` | Gmail address | ✅ |
+| `GMAIL_APP_PASSWORD` | Gmail App Password | ✅ |
+| `FROM_NAME` | Email sender name | ✅ |
+| `JWT_SECRET` | JWT signing secret | ✅ |
+| `NEXT_PUBLIC_APP_URL` | Application URL | ✅ |
+| `EXCHANGE_RATE_API_KEY` | Currency API key | ❌ |
 
-## 🔧 **Available Scripts**
+## 📱 API Endpoints
 
-\`\`\`bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm start           # Start production server
-npm run lint        # Run ESLint
-npm run type-check  # TypeScript type checking
-npm run db:migrate  # Run database migrations
-npm run email:test  # Test email configuration
-npm test           # Run tests
-\`\`\`
+### Email API
+- `POST /api/email/maintenance-reminder` - Send maintenance reminder
+- `POST /api/email/license-expiry` - Send license expiry alert
+- `POST /api/email/welcome` - Send welcome email
+- `POST /api/email/test` - Send test email
+- `POST /api/email/verify` - Verify email configuration
 
-## 🔐 **Security Features**
-
-- JWT-based authentication with secure token handling
-- Password hashing with bcrypt
-- SQL injection prevention with parameterized queries
-- XSS protection with input sanitization
-- CSRF protection built-in
-- Environment variable security
-- Role-based access control
-
-## 📧 **Email Templates**
-
-The system includes beautiful HTML email templates for:
-- 🔧 Maintenance reminders
-- ⚠️ License expiry alerts
-- 👋 Welcome emails for new users
-- 📊 System notifications
-
-## 🌐 **API Endpoints**
-
-### Authentication
+### Authentication API
 - `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
 - `POST /api/auth/logout` - User logout
-- `GET /api/auth/me` - Get current user
 
-### Vehicles
-- `GET /api/vehicles` - List all vehicles
-- `POST /api/vehicles` - Create new vehicle
-- `PUT /api/vehicles/:id` - Update vehicle
-- `DELETE /api/vehicles/:id` - Delete vehicle
-
-### Drivers
-- `GET /api/drivers` - List all drivers
-- `POST /api/drivers` - Create new driver
-- `PUT /api/drivers/:id` - Update driver
-- `DELETE /api/drivers/:id` - Delete driver
-
-### Maintenance
-- `GET /api/maintenance` - List maintenance records
-- `POST /api/maintenance` - Create maintenance record
-- `PUT /api/maintenance/:id` - Update maintenance record
-
-## 🧪 **Testing**
+## 🧪 Testing
 
 \`\`\`bash
-# Run all tests
-npm test
+# Test email configuration
+npm run email:test
 
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with coverage
-npm run test:coverage
+# Test database connection
+npm run db:migrate
 \`\`\`
 
-## 🤝 **Contributing**
+## 🔒 Security Features
+
+- JWT-based authentication
+- Password hashing with bcrypt
+- SQL injection prevention
+- XSS protection
+- CSRF protection
+- Rate limiting for email sending
+
+## 🌍 Multi-language Support
+
+Supported languages:
+- English (en)
+- Spanish (es)
+- French (fr)
+- German (de)
+- Bosnian (bs)
+
+## 💱 Currency Support
+
+- Real-time currency conversion
+- Support for major world currencies
+- Configurable default currency per user
+
+## 📊 Reporting Features
+
+- Vehicle utilization reports
+- Maintenance cost analysis
+- Fuel consumption trends
+- Driver performance metrics
+- Incident statistics
+
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-## 📄 **License**
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 **Support**
+## 🆘 Support
 
-- 📧 Email: support@fleetly.com
-- 📖 Documentation: [docs.fleetly.com](https://docs.fleetly.com)
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/fleetly/issues)
+For support and questions:
+- Create an issue on GitHub
+- Email: support@fleetly.com
+- Documentation: [docs.fleetly.com](https://docs.fleetly.com)
 
-## 🎯 **Roadmap**
+## 🙏 Acknowledgments
 
-- [ ] Mobile app (React Native)
-- [ ] GPS tracking integration
-- [ ] Advanced reporting dashboard
-- [ ] API rate limiting
-- [ ] Webhook integrations
-- [ ] Multi-tenant support
-- [ ] Advanced role permissions
-- [ ] Audit logging system
+- Built with Next.js and React
+- UI components from Radix UI
+- Styling with Tailwind CSS
+- Email service with Nodemailer
+- Database with MySQL
 
 ---
 
-**Built with ❤️ by the Fleetly Team**
-
-*Fleetly - Making fleet management simple, efficient, and intelligent.*
+**Fleetly** - Streamline your fleet management operations with powerful automation and insights.
