@@ -35,24 +35,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# uploads
-/uploads/*
-!/uploads/.gitkeep
-
-# database
-/database/*.db
-/database/*.sqlite
-
-# logs
-logs
-*.log
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-Thumbs.db

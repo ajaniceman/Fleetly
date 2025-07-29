@@ -5,70 +5,102 @@ export interface Vehicle {
   year: number
   licensePlate: string
   vin: string
-  status: "active" | "maintenance" | "inactive"
+  status: "active" | "inactive" | "maintenance"
   mileage: number
-  fuelType: "gasoline" | "diesel" | "electric" | "hybrid"
-  lastMaintenance: string
-  nextMaintenance: string
-  driver?: string
+  fuelType: string
   location: string
+  assignedDriverId?: string
+  lastMaintenance?: string
+  nextMaintenance?: string
+  insuranceExpiry: string
+  registrationExpiry: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface Driver {
   id: string
-  name: string
+  firstName: string
+  lastName: string
   email: string
   phone: string
   licenseNumber: string
   licenseExpiry: string
   status: "active" | "inactive" | "suspended"
-  vehicleAssigned?: string
   hireDate: string
+  address: string
+  emergencyContact: {
+    name: string
+    phone: string
+    relationship: string
+  }
+  createdAt: string
+  updatedAt: string
 }
 
 export interface MaintenanceRecord {
   id: string
   vehicleId: string
-  vehiclePlate: string
   type: "scheduled" | "repair" | "inspection"
   description: string
-  date: string
   cost: number
-  mileage: number
-  status: "scheduled" | "in-progress" | "completed" | "cancelled"
+  date: string
+  mileage?: number
   serviceProvider: string
-  notes?: string
+  status: "scheduled" | "in-progress" | "completed" | "cancelled"
+  nextServiceDate?: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface FuelRecord {
   id: string
   vehicleId: string
-  vehiclePlate: string
+  driverId: string
   date: string
   amount: number
   cost: number
   pricePerUnit: number
-  mileage: number
+  mileage?: number
   location: string
-  driver: string
-  receipt?: string
+  receiptNumber?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Incident {
+  id: string
+  vehicleId: string
+  driverId: string
+  type: "accident" | "breakdown" | "violation" | "other"
+  severity: "minor" | "major" | "critical"
+  description: string
+  date: string
+  location: string
+  status: "reported" | "investigating" | "resolved" | "pending"
+  cost?: number
+  insuranceClaim?: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface User {
   id: string
   email: string
-  name: string
+  firstName: string
+  lastName: string
   role: "admin" | "manager" | "driver"
+  status: "active" | "inactive"
   createdAt: string
-  lastLogin?: string
+  updatedAt: string
 }
 
 export interface Notification {
   id: string
-  type: "maintenance" | "license_expiry" | "fuel_alert" | "incident"
+  userId: string
+  type: "maintenance" | "license_expiry" | "incident" | "fuel" | "general"
   title: string
   message: string
   read: boolean
   createdAt: string
-  userId: string
 }

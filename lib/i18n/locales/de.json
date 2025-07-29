@@ -46,7 +46,8 @@
     "pendingMaintenance": "Ausstehende Wartung",
     "monthlyFuelCost": "Monatliche Kraftstoffkosten",
     "recent_activity": "Letzte Aktivität",
-    "quick_actions": "Schnellaktionen"
+    "quick_actions": "Schnellaktionen",
+    "monthly_savings": "Monatliche Einsparungen"
   },
   "vehicles": {
     "title": "Fahrzeuge",
@@ -57,7 +58,8 @@
     "year": "Jahr",
     "status": "Status",
     "mileage": "Kilometerstand",
-    "fuelType": "Kraftstoffart"
+    "fuelType": "Kraftstoffart",
+    "add_vehicle": "Fahrzeug Hinzufügen"
   },
   "drivers": {
     "title": "Fahrer",
@@ -91,7 +93,8 @@
       "completed": "Abgeschlossen",
       "overdue": "Überfällig"
     },
-    "maintenance_due": "Wartung Fällig"
+    "maintenance_due": "Wartung Fällig",
+    "schedule_maintenance": "Wartung Planen"
   },
   "fuel": {
     "title": "Kraftstoffverwaltung",
@@ -102,7 +105,8 @@
     "totalCost": "Gesamtkosten",
     "fuelConsumption": "Kraftstoffverbrauch",
     "fuelEfficiency": "Kraftstoffeffizienz",
-    "fuel_efficiency": "Kraftstoffeffizienz"
+    "fuel_efficiency": "Kraftstoffeffizienz",
+    "add_fuel_record": "Kraftstoffeintrag Hinzufügen"
   },
   "incidents": {
     "title": "Vorfälle",
@@ -129,7 +133,9 @@
       "investigating": "Untersuchung",
       "resolved": "Gelöst",
       "closed": "Geschlossen"
-    }
+    },
+    "open_incidents": "Offene Vorfälle",
+    "report_incident": "Vorfall Melden"
   },
   "reports": {
     "title": "Berichte & Analysen",
@@ -138,7 +144,8 @@
     "maintenanceCosts": "Wartungskosten",
     "driverPerformance": "Fahrerleistung",
     "fuelEfficiency": "Kraftstoffeffizienz",
-    "generate_report": "Bericht Erstellen"
+    "generate_report": "Bericht Erstellen",
+    "fuel_efficiency": "Kraftstoffeffizienz"
   },
   "settings": {
     "title": "Einstellungen",
@@ -181,5 +188,19 @@
     "maintenance_reminders": "Wartungserinnerungen",
     "license_expiry_alerts": "Führerschein-Ablauf-Warnungen",
     "fuel_efficiency_alerts": "Kraftstoffeffizienz-Warnungen"
-  }
+  },
+  "welcome": "Willkommen",
+  "logout": "Abmelden",
+  "total_vehicles": "Gesamte Fahrzeuge",
+  "active_drivers": "Aktive Fahrer",
+  "maintenance_due": "Wartung Fällig",
+  "fuel_efficiency": "Kraftstoffeffizienz",
+  "open_incidents": "Offene Vorfälle",
+  "monthly_savings": "Monatliche Einsparungen",
+  "add_vehicle": "Fahrzeug Hinzufügen",
+  "add_driver": "Fahrer Hinzufügen",
+  "schedule_maintenance": "Wartung Planen",
+  "add_fuel_record": "Kraftstoffeintrag Hinzufügen",
+  "report_incident": "Vorfall Melden",
+  "export_data": "Daten Exportieren"
 }

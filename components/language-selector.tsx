@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Languages } from "lucide-react"
-import { getAvailableLanguages, type Language } from "@/lib/i18n"
+import { type Language, getAvailableLanguages } from "@/lib/i18n"
 
 interface LanguageSelectorProps {
   currentLanguage: Language

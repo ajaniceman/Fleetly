@@ -14,7 +14,7 @@ export abstract class BaseService {
 
   async findById(id: string): Promise<any | null> {
     const query = `SELECT * FROM ${this.tableName} WHERE id = ?`
-    const results = (await executeQuery(query, [id])) as any[]
+    const results = await executeQuery(query, [id])
     return results.length > 0 ? results[0] : null
   }
 
@@ -28,29 +28,36 @@ export abstract class BaseService {
     const query = `INSERT INTO ${this.tableName} (${fields}) VALUES (${placeholders})`
     await executeQuery(query, values)
 
-    // Get the last inserted ID
-    const [result] = (await executeQuery("SELECT LAST_INSERT_ID() as id")) as any[]
-    return result.id
+    return data.id
   }
 
-  async update(id: string, data: any): Promise<void> {
+  async update(id: string, data: any): Promise<boolean> {
     const fields = Object.keys(data)
       .map((key) => `${key} = ?`)
       .join(", ")
     const values = [...Object.values(data), id]
 
     const query = `UPDATE ${this.tableName} SET ${fields} WHERE id = ?`
-    await executeQuery(query, values)
+    const result = await executeQuery(query, values)
+
+    return result.affectedRows > 0
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<boolean> {
     const query = `DELETE FROM ${this.tableName} WHERE id = ?`
-    await executeQuery(query, [id])
+    const result = await executeQuery(query, [id])
+
+    return result.affectedRows > 0
+  }
+
+  async findByField(field: string, value: any): Promise<any[]> {
+    const query = `SELECT * FROM ${this.tableName} WHERE ${field} = ?`
+    return await executeQuery(query, [value])
   }
 
   async count(): Promise<number> {
     const query = `SELECT COUNT(*) as count FROM ${this.tableName}`
-    const [result] = (await executeQuery(query)) as any[]
-    return result.count
+    const results = await executeQuery(query)
+    return results[0].count
   }
 }

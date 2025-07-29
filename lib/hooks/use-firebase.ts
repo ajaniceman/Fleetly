@@ -130,13 +130,20 @@ export function useFirebase(): UseFirebaseReturn {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    // Mock sign in
+    setLoading(true)
+    // Simulate sign in
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    setUser({ email, uid: "mock-uid" })
+    setLoading(false)
     return Promise.resolve({ user: { email } })
   }
 
   const signOut = async () => {
-    // Mock sign out
+    setLoading(true)
+    // Simulate sign out
+    await new Promise((resolve) => setTimeout(resolve, 500))
     setUser(null)
+    setLoading(false)
     return Promise.resolve()
   }
 

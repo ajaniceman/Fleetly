@@ -14,26 +14,22 @@ export default function VehiclesLoading() {
           <Skeleton className="h-10 w-32" />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
             <Card key={i}>
               <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <Skeleton className="h-6 w-32" />
-                    <Skeleton className="h-4 w-24 mt-2" />
-                  </div>
-                  <Skeleton className="h-6 w-16" />
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-32" />
+                  <Skeleton className="h-5 w-16" />
                 </div>
+                <Skeleton className="h-4 w-24" />
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {Array.from({ length: 4 }).map((_, j) => (
-                    <div key={j} className="flex justify-between">
-                      <Skeleton className="h-4 w-20" />
-                      <Skeleton className="h-4 w-24" />
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
                 </div>
               </CardContent>
             </Card>

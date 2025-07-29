@@ -302,77 +302,116 @@ class ServerEmailService {
 export const serverEmailService = new ServerEmailService()
 
 // Client-side email service that calls API routes
-export class ClientEmailService {
-  private static instance: ClientEmailService
+export class EmailService {
+  private static instance: EmailService
 
-  private constructor() {}
-
-  static getInstance(): ClientEmailService {
-    if (!ClientEmailService.instance) {
-      ClientEmailService.instance = new ClientEmailService()
+  static getInstance(): EmailService {
+    if (!EmailService.instance) {
+      EmailService.instance = new EmailService()
     }
-    return ClientEmailService.instance
+    return EmailService.instance
   }
 
-  async sendMaintenanceReminder(vehicleId: string, dueDate: string): Promise<void> {
-    const response = await fetch("/api/email/maintenance-reminder", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vehicleId, dueDate }),
-    })
+  async sendMaintenanceReminder(vehicleId: string, driverEmail: string, maintenanceDetails: any): Promise<boolean> {
+    try {
+      const response = await fetch("/api/email/maintenance-reminder", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          vehicleId,
+          driverEmail,
+          maintenanceDetails,
+        }),
+      })
 
-    if (!response.ok) {
-      throw new Error("Failed to send maintenance reminder")
-    }
-  }
-
-  async sendLicenseExpiryAlert(driverId: string, expiryDate: string): Promise<void> {
-    const response = await fetch("/api/email/license-expiry", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ driverId, expiryDate }),
-    })
-
-    if (!response.ok) {
-      throw new Error("Failed to send license expiry alert")
+      return response.ok
+    } catch (error) {
+      console.error("Failed to send maintenance reminder:", error)
+      return false
     }
   }
 
-  async sendWelcomeEmail(userEmail: string, userName: string): Promise<void> {
-    const response = await fetch("/api/email/welcome", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userEmail, userName }),
-    })
+  async sendLicenseExpiryNotification(driverEmail: string, driverName: string, expiryDate: string): Promise<boolean> {
+    try {
+      const response = await fetch("/api/email/license-expiry", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          driverEmail,
+          driverName,
+          expiryDate,
+        }),
+      })
 
-    if (!response.ok) {
-      throw new Error("Failed to send welcome email")
+      return response.ok
+    } catch (error) {
+      console.error("Failed to send license expiry notification:", error)
+      return false
     }
   }
 
-  async sendTestEmail(to: string): Promise<void> {
-    const response = await fetch("/api/email/test", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ to }),
-    })
+  async sendWelcomeEmail(userEmail: string, userName: string): Promise<boolean> {
+    try {
+      const response = await fetch("/api/email/welcome", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userEmail,
+          userName,
+        }),
+      })
 
-    if (!response.ok) {
-      throw new Error("Failed to send test email")
+      return response.ok
+    } catch (error) {
+      console.error("Failed to send welcome email:", error)
+      return false
     }
   }
 
-  async sendVerificationEmail(userEmail: string, verificationToken: string): Promise<void> {
-    const response = await fetch("/api/email/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userEmail, verificationToken }),
-    })
+  async sendTestEmail(recipientEmail: string): Promise<boolean> {
+    try {
+      const response = await fetch("/api/email/test", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          recipientEmail,
+        }),
+      })
 
-    if (!response.ok) {
-      throw new Error("Failed to send verification email")
+      return response.ok
+    } catch (error) {
+      console.error("Failed to send test email:", error)
+      return false
+    }
+  }
+
+  async sendVerificationEmail(userEmail: string, verificationToken: string): Promise<boolean> {
+    try {
+      const response = await fetch("/api/email/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userEmail,
+          verificationToken,
+        }),
+      })
+
+      return response.ok
+    } catch (error) {
+      console.error("Failed to send verification email:", error)
+      return false
     }
   }
 }
 
-export const clientEmailService = ClientEmailService.getInstance()
+export const emailService = EmailService.getInstance()

@@ -15,7 +15,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { AlertTriangle, Plus, Search, MoreHorizontal, Edit, Trash2, Eye, DollarSign, Clock } from "lucide-react"
+import {
+  AlertTriangle,
+  Plus,
+  Search,
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Eye,
+  DollarSign,
+  Clock,
+  Calendar,
+  MapPin,
+} from "lucide-react"
 import { mockIncidents, mockVehicles, mockDrivers } from "@/lib/data"
 
 export default function IncidentsPage() {
@@ -99,11 +111,11 @@ export default function IncidentsPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Incidents</h1>
-            <p className="text-muted-foreground">Track and manage fleet incidents and accidents</p>
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900">Incidents</h1>
+            <p className="text-gray-600">Track and manage fleet incidents and accidents</p>
           </div>
           <Button>
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="h-4 w-4 mr-2" />
             Report Incident
           </Button>
         </div>
@@ -246,6 +258,54 @@ export default function IncidentsPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Incident Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {incidents.map((incident) => (
+            <Card key={incident.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center space-x-2">
+                    <AlertTriangle className="h-5 w-5" />
+                    <span className="capitalize">{incident.type}</span>
+                  </CardTitle>
+                  <div className="flex space-x-2">
+                    <Badge variant={incident.severity === "minor" ? "secondary" : "destructive"}>
+                      {incident.severity}
+                    </Badge>
+                    <Badge variant={incident.status === "resolved" ? "default" : "secondary"}>{incident.status}</Badge>
+                  </div>
+                </div>
+                <CardDescription>
+                  Vehicle ID: {incident.vehicle_id} • Driver ID: {incident.driver_id}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <p className="text-sm font-medium">{incident.description}</p>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    {incident.date.toLocaleDateString()}
+                  </div>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    {incident.location}
+                  </div>
+                  {incident.cost && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <DollarSign className="h-4 w-4 mr-2" />${incident.cost.toFixed(2)}
+                    </div>
+                  )}
+                  {incident.insuranceClaim && (
+                    <div className="text-sm">
+                      <span className="font-medium">Insurance Claim:</span> {incident.insuranceClaim}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </DashboardLayout>
   )

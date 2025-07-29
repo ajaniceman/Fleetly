@@ -40,13 +40,14 @@
   },
   "dashboard": {
     "title": "Panel de Control",
-    "welcome": "¡Bienvenido de vuelta! Esto es lo que está pasando con tu flota.",
+    "welcome": "Bienvenido",
     "totalVehicles": "Total de Vehículos",
     "totalDrivers": "Total de Conductores",
     "pendingMaintenance": "Mantenimiento Pendiente",
     "monthlyFuelCost": "Costo Mensual de Combustible",
     "recent_activity": "Actividad Reciente",
-    "quick_actions": "Acciones Rápidas"
+    "quick_actions": "Acciones Rápidas",
+    "monthly_savings": "Ahorros Mensuales"
   },
   "vehicles": {
     "title": "Vehículos",
@@ -57,7 +58,8 @@
     "year": "Año",
     "status": "Estado",
     "mileage": "Kilometraje",
-    "fuelType": "Tipo de Combustible"
+    "fuelType": "Tipo de Combustible",
+    "add_vehicle": "Agregar Vehículo"
   },
   "drivers": {
     "title": "Conductores",
@@ -91,7 +93,8 @@
       "completed": "Completado",
       "overdue": "Vencido"
     },
-    "maintenance_due": "Mantenimiento Pendiente"
+    "maintenance_due": "Mantenimiento Pendiente",
+    "schedule_maintenance": "Programar Mantenimiento"
   },
   "fuel": {
     "title": "Gestión de Combustible",
@@ -102,7 +105,8 @@
     "totalCost": "Costo Total",
     "fuelConsumption": "Consumo de Combustible",
     "fuelEfficiency": "Eficiencia de Combustible",
-    "add_fuel_record": "Agregar Registro de Combustible"
+    "add_fuel_record": "Agregar Registro de Combustible",
+    "fuel_efficiency": "Eficiencia de Combustible"
   },
   "incidents": {
     "title": "Incidentes",
@@ -130,7 +134,8 @@
       "resolved": "Resuelto",
       "closed": "Cerrado"
     },
-    "report_incident": "Reportar Incidente"
+    "report_incident": "Reportar Incidente",
+    "open_incidents": "Incidentes Abiertos"
   },
   "reports": {
     "title": "Reportes y Análisis",
@@ -187,6 +192,7 @@
     "fuel_efficiency_alerts": "Alertas de Eficiencia de Combustible"
   },
   "actions": {
-    "save_changes": "Guardar Cambios"
+    "save_changes": "Guardar Cambios",
+    "export_data": "Exportar Datos"
   }
 }

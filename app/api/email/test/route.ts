@@ -1,19 +1,23 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { serverEmailService } from "@/lib/server/email-service"
+import { sendTestEmail } from "@/lib/server/email-service"
 
 export async function POST(request: NextRequest) {
   try {
-    const { to } = await request.json()
+    const { recipientEmail } = await request.json()
 
-    if (!to) {
-      return NextResponse.json({ error: "Recipient email is required" }, { status: 400 })
+    if (!recipientEmail) {
+      return NextResponse.json({ error: "Missing recipient email" }, { status: 400 })
     }
 
-    await serverEmailService.sendTestEmail(to)
+    const success = await sendTestEmail(recipientEmail)
 
-    return NextResponse.json({ success: true })
+    if (success) {
+      return NextResponse.json({ message: "Test email sent successfully" })
+    } else {
+      return NextResponse.json({ error: "Failed to send test email" }, { status: 500 })
+    }
   } catch (error) {
-    console.error("Error sending test email:", error)
-    return NextResponse.json({ error: "Failed to send test email" }, { status: 500 })
+    console.error("Test email API error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

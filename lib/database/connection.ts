@@ -6,30 +6,24 @@ const dbConfig = {
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "fleetly",
-  ssl:
-    process.env.DB_SSL === "true"
-      ? {
-          rejectUnauthorized: false,
-        }
-      : false,
+  waitForConnections: true,
   connectionLimit: 10,
-  acquireTimeout: 60000,
-  timeout: 60000,
+  queueLimit: 0,
 }
 
 let pool: mysql.Pool | null = null
 
-export async function getConnection() {
+export function getPool(): mysql.Pool {
   if (!pool) {
     pool = mysql.createPool(dbConfig)
   }
   return pool
 }
 
-export async function executeQuery(query: string, params: any[] = []) {
-  const connection = await getConnection()
+export async function executeQuery(query: string, params: any[] = []): Promise<any> {
   try {
-    const [results] = await connection.execute(query, params)
+    const pool = getPool()
+    const [results] = await pool.execute(query, params)
     return results
   } catch (error) {
     console.error("Database query error:", error)
@@ -37,7 +31,7 @@ export async function executeQuery(query: string, params: any[] = []) {
   }
 }
 
-export async function closeConnection() {
+export async function closePool(): Promise<void> {
   if (pool) {
     await pool.end()
     pool = null

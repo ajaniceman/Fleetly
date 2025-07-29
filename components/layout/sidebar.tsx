@@ -1,12 +1,24 @@
 "use client"
-
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Car, Users, Wrench, Fuel, AlertTriangle, BarChart3, Settings, LayoutDashboard } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Car,
+  Users,
+  Wrench,
+  Fuel,
+  AlertTriangle,
+  BarChart3,
+  Settings,
+  Home,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Vehicles", href: "/vehicles", icon: Car },
   { name: "Drivers", href: "/drivers", icon: Users },
   { name: "Maintenance", href: "/maintenance", icon: Wrench },
@@ -16,38 +28,56 @@ const navigation = [
   { name: "Settings", href: "/settings", icon: Settings },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  collapsed: boolean
+  onToggle: () => void
+}
+
+export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname()
 
   return (
-    <div className="flex h-full w-64 flex-col bg-gray-900">
-      <div className="flex h-16 shrink-0 items-center px-6">
-        <h1 className="text-xl font-bold text-white">Fleetly</h1>
+    <div
+      className={cn(
+        "relative flex flex-col bg-white border-r border-gray-200 transition-all duration-300",
+        collapsed ? "w-16" : "w-64",
+      )}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        {!collapsed && (
+          <div className="flex items-center space-x-2">
+            <Car className="h-8 w-8 text-blue-600" />
+            <span className="text-xl font-bold text-gray-900">Fleetly</span>
+          </div>
+        )}
+        <Button variant="ghost" size="sm" onClick={onToggle} className="h-8 w-8 p-0">
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </Button>
       </div>
-      <nav className="flex flex-1 flex-col px-6 py-4">
-        <ul role="list" className="flex flex-1 flex-col gap-y-7">
-          <li>
-            <ul role="list" className="-mx-2 space-y-1">
-              {navigation.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      pathname === item.href
-                        ? "bg-gray-800 text-white"
-                        : "text-gray-400 hover:text-white hover:bg-gray-800",
-                      "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold",
-                    )}
-                  >
-                    <item.icon className="h-6 w-6 shrink-0" aria-hidden="true" />
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </li>
-        </ul>
-      </nav>
+
+      {/* Navigation */}
+      <ScrollArea className="flex-1 px-3 py-4">
+        <nav className="space-y-1">
+          {navigation.map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={cn(
+                  "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  isActive ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                  collapsed && "justify-center",
+                )}
+              >
+                <item.icon className={cn("h-5 w-5", !collapsed && "mr-3")} />
+                {!collapsed && <span>{item.name}</span>}
+              </Link>
+            )
+          })}
+        </nav>
+      </ScrollArea>
     </div>
   )
 }

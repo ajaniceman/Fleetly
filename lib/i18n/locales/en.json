@@ -7,15 +7,16 @@
     "fuel": "Fuel",
     "incidents": "Incidents",
     "reports": "Reports",
-    "settings": "Settings"
+    "settings": "Settings",
+    "logout": "Logout"
   },
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome back! Here's what's happening with your fleet.",
+    "welcome": "Welcome",
     "totalVehicles": "Total Vehicles",
     "totalDrivers": "Total Drivers",
     "pendingMaintenance": "Pending Maintenance",
-    "monthlyFuelCost": "Monthly Fuel Cost",
+    "monthlyFuelCost": "Monthly Savings",
     "recent_activity": "Recent Activity",
     "quick_actions": "Quick Actions"
   },
@@ -73,12 +74,13 @@
     "incidentId": "Incident ID",
     "type": "Type",
     "severity": "Severity",
-    "location": "Location"
+    "location": "Location",
+    "open_incidents": "Open Incidents"
   },
   "reports": {
     "title": "Reports",
     "subtitle": "Generate and view fleet analytics and reports",
-    "exportReport": "Export Report",
+    "exportReport": "Export Data",
     "reportType": "Report Type",
     "dateRange": "Date Range",
     "generate_report": "Generate Report"

@@ -15,7 +15,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build the application
 RUN npm run build
 
 # Production image, copy all the files and run next
@@ -36,9 +35,6 @@ RUN chown nextjs:nodejs .next
 # Automatically leverage output traces to reduce image size
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Create uploads directory
-RUN mkdir -p uploads && chown nextjs:nodejs uploads
 
 USER nextjs
 

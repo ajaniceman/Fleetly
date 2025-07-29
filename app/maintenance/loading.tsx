@@ -9,31 +9,28 @@ export default function MaintenanceLoading() {
         <div className="flex justify-between items-center">
           <div>
             <Skeleton className="h-8 w-32" />
-            <Skeleton className="h-4 w-56 mt-2" />
+            <Skeleton className="h-4 w-64 mt-2" />
           </div>
-          <Skeleton className="h-10 w-40" />
+          <Skeleton className="h-10 w-48" />
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
             <Card key={i}>
               <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <Skeleton className="h-6 w-64" />
-                    <Skeleton className="h-4 w-48 mt-2" />
-                  </div>
-                  <Skeleton className="h-6 w-20" />
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-32" />
+                  <Skeleton className="h-5 w-20" />
                 </div>
+                <Skeleton className="h-4 w-24" />
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {Array.from({ length: 4 }).map((_, j) => (
-                    <div key={j}>
-                      <Skeleton className="h-4 w-16 mb-1" />
-                      <Skeleton className="h-5 w-20" />
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-4 w-1/3" />
                 </div>
               </CardContent>
             </Card>

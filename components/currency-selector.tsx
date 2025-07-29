@@ -1,4 +1,5 @@
 "use client"
+
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { DollarSign } from "lucide-react"
@@ -10,15 +11,15 @@ interface CurrencySelectorProps {
 }
 
 export function CurrencySelector({ currentCurrency, onCurrencyChange }: CurrencySelectorProps) {
-  const currencies = currencyService.getAvailableCurrencies()
-  const currentCurrencyInfo = currencyService.getCurrencyInfo(currentCurrency)
+  const currencies = currencyService.getAllCurrencies()
+  const current = currencies.find((c) => c.code === currentCurrency)
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm">
           <DollarSign className="h-4 w-4 mr-2" />
-          {currentCurrencyInfo?.code || currentCurrency}
+          {current?.code || "USD"}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

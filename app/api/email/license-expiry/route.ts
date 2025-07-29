@@ -1,19 +1,23 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { serverEmailService } from "@/lib/server/email-service"
+import { sendLicenseExpiryNotification } from "@/lib/server/email-service"
 
 export async function POST(request: NextRequest) {
   try {
-    const { driverId, expiryDate } = await request.json()
+    const { driverEmail, driverName, expiryDate } = await request.json()
 
-    if (!driverId || !expiryDate) {
-      return NextResponse.json({ error: "Driver ID and expiry date are required" }, { status: 400 })
+    if (!driverEmail || !driverName || !expiryDate) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    await serverEmailService.sendLicenseExpiryAlert(driverId, expiryDate)
+    const success = await sendLicenseExpiryNotification(driverEmail, driverName, expiryDate)
 
-    return NextResponse.json({ success: true })
+    if (success) {
+      return NextResponse.json({ message: "License expiry notification sent successfully" })
+    } else {
+      return NextResponse.json({ error: "Failed to send license expiry notification" }, { status: 500 })
+    }
   } catch (error) {
-    console.error("Error sending license expiry alert:", error)
-    return NextResponse.json({ error: "Failed to send license expiry alert" }, { status: 500 })
+    console.error("License expiry API error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

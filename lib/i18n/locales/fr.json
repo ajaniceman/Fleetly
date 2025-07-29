@@ -40,18 +40,19 @@
   },
   "dashboard": {
     "title": "Tableau de Bord",
-    "welcome": "Bon retour ! Voici ce qui se passe avec votre flotte.",
+    "welcome": "Bienvenue ! Voici ce qui se passe avec votre flotte.",
     "totalVehicles": "Total des Véhicules",
     "totalDrivers": "Total des Conducteurs",
     "pendingMaintenance": "Maintenance en Attente",
     "monthlyFuelCost": "Coût Mensuel du Carburant",
     "recent_activity": "Activité Récente",
-    "quick_actions": "Actions Rapides"
+    "quick_actions": "Actions Rapides",
+    "monthly_savings": "Économies Mensuelles"
   },
   "vehicles": {
     "title": "Véhicules",
     "subtitle": "Gérez les véhicules de votre flotte",
-    "addVehicle": "Ajouter un Véhicule",
+    "addVehicle": "Ajouter Véhicule",
     "licensePlate": "Plaque d'Immatriculation",
     "makeModel": "Marque et Modèle",
     "year": "Année",
@@ -62,7 +63,7 @@
   "drivers": {
     "title": "Conducteurs",
     "subtitle": "Gérez les conducteurs de votre flotte et leurs informations",
-    "addDriver": "Ajouter un Conducteur",
+    "addDriver": "Ajouter Conducteur",
     "employeeId": "ID Employé",
     "licenseNumber": "Numéro de Permis",
     "licenseExpiry": "Expiration du Permis",
@@ -78,7 +79,7 @@
   "maintenance": {
     "title": "Maintenance",
     "subtitle": "Planifiez et suivez les tâches de maintenance des véhicules",
-    "scheduleMaintenance": "Planifier la Maintenance",
+    "scheduleMaintenance": "Programmer Maintenance",
     "serviceType": "Type de Service",
     "scheduledDate": "Date Prévue",
     "dueDate": "Date d'Échéance",
@@ -101,13 +102,13 @@
     "unitCost": "Coût Unitaire",
     "totalCost": "Coût Total",
     "fuelConsumption": "Consommation de Carburant",
-    "fuelEfficiency": "Efficacité du Carburant",
-    "add_fuel_record": "Ajouter un Enregistrement de Carburant"
+    "fuelEfficiency": "Efficacité Carburant",
+    "add_fuel_record": "Ajouter Enregistrement Carburant"
   },
   "incidents": {
     "title": "Incidents",
     "subtitle": "Suivez et gérez les incidents de la flotte et les rapports de sécurité",
-    "reportIncident": "Signaler un Incident",
+    "reportIncident": "Signaler Incident",
     "incidentId": "ID d'Incident",
     "type": "Type",
     "severity": "Gravité",
@@ -129,7 +130,8 @@
       "investigating": "En Investigation",
       "resolved": "Résolu",
       "closed": "Fermé"
-    }
+    },
+    "open_incidents": "Incidents Ouverts"
   },
   "reports": {
     "title": "Rapports et Analyses",
@@ -137,8 +139,9 @@
     "fleetUtilization": "Utilisation de la Flotte",
     "maintenanceCosts": "Coûts de Maintenance",
     "driverPerformance": "Performance du Conducteur",
-    "fuelEfficiency": "Efficacité du Carburant",
-    "generate_report": "Générer un Rapport"
+    "fuelEfficiency": "Efficacité Carburant",
+    "generate_report": "Générer un Rapport",
+    "export_data": "Exporter Données"
   },
   "settings": {
     "title": "Paramètres",
@@ -160,14 +163,14 @@
   },
   "auth": {
     "login": "Se Connecter",
-    "logout": "Se Déconnecter",
+    "logout": "Déconnexion",
     "register": "S'Inscrire",
     "email": "Email",
     "password": "Mot de Passe",
     "confirmPassword": "Confirmer le Mot de Passe",
     "forgotPassword": "Mot de passe oublié ?",
     "rememberMe": "Se souvenir de moi",
-    "welcomeBack": "Bon retour !",
+    "welcomeBack": "Bienvenue !",
     "signInToAccount": "Connectez-vous à votre compte de gestion de flotte"
   },
   "notifications": {

@@ -1,53 +1,44 @@
 // Mock Firestore service for development
 export class FirestoreService {
-  private static instance: FirestoreService
-  private data: Map<string, any[]> = new Map()
+  private mockData: any = {}
 
-  private constructor() {
-    // Initialize with mock data
-    this.data.set("vehicles", [])
-    this.data.set("drivers", [])
-    this.data.set("maintenance", [])
-    this.data.set("fuel", [])
-    this.data.set("users", [])
-  }
-
-  static getInstance(): FirestoreService {
-    if (!FirestoreService.instance) {
-      FirestoreService.instance = new FirestoreService()
+  async get(collection: string, id?: string) {
+    if (id) {
+      return this.mockData[collection]?.[id] || null
     }
-    return FirestoreService.instance
+    return Object.values(this.mockData[collection] || {})
   }
 
-  async getCollection(collection: string): Promise<any[]> {
-    return this.data.get(collection) || []
-  }
-
-  async addDocument(collection: string, document: any): Promise<string> {
-    const id = Math.random().toString(36).substr(2, 9)
-    const newDoc = { ...document, id }
-
-    const existing = this.data.get(collection) || []
-    this.data.set(collection, [...existing, newDoc])
-
+  async add(collection: string, data: any) {
+    if (!this.mockData[collection]) {
+      this.mockData[collection] = {}
+    }
+    const id = Date.now().toString()
+    this.mockData[collection][id] = { ...data, id }
     return id
   }
 
-  async updateDocument(collection: string, id: string, updates: any): Promise<void> {
-    const existing = this.data.get(collection) || []
-    const index = existing.findIndex((doc) => doc.id === id)
-
-    if (index !== -1) {
-      existing[index] = { ...existing[index], ...updates }
-      this.data.set(collection, existing)
+  async update(collection: string, id: string, data: any) {
+    if (this.mockData[collection]?.[id]) {
+      this.mockData[collection][id] = { ...this.mockData[collection][id], ...data }
+      return true
     }
+    return false
   }
 
-  async deleteDocument(collection: string, id: string): Promise<void> {
-    const existing = this.data.get(collection) || []
-    const filtered = existing.filter((doc) => doc.id !== id)
-    this.data.set(collection, filtered)
+  async delete(collection: string, id: string) {
+    if (this.mockData[collection]?.[id]) {
+      delete this.mockData[collection][id]
+      return true
+    }
+    return false
+  }
+
+  async query(collection: string, filters: any[] = []) {
+    const items = Object.values(this.mockData[collection] || {})
+    // Simple mock filtering - in real implementation, apply filters
+    return items
   }
 }
 
-export const firestore = FirestoreService.getInstance()
+export const firestore = new FirestoreService()

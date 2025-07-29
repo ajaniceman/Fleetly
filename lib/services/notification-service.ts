@@ -1,133 +1,125 @@
-"use client"
-
+import { BaseService } from "./base-service"
 import type { Notification } from "@/lib/types"
+import { executeQuery } from "@/lib/database/connection"
 
-export class NotificationService {
-  private static instance: NotificationService
-  private notifications: Notification[] = []
-  private listeners: ((notifications: Notification[]) => void)[] = []
-
-  private constructor() {
-    // Initialize with mock notifications
-    this.notifications = [
-      {
-        id: "1",
-        type: "maintenance",
-        title: "Maintenance Due",
-        message: "Vehicle ABC-123 is due for maintenance",
-        read: false,
-        createdAt: new Date().toISOString(),
-        userId: "current-user",
-      },
-      {
-        id: "2",
-        type: "license_expiry",
-        title: "License Expiry",
-        message: "Driver license for Sarah Johnson expires in 30 days",
-        read: false,
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-        userId: "current-user",
-      },
-    ]
+export class NotificationService extends BaseService {
+  constructor() {
+    super("notifications")
   }
 
-  static getInstance(): NotificationService {
-    if (!NotificationService.instance) {
-      NotificationService.instance = new NotificationService()
+  async createNotification(notificationData: Omit<Notification, "id" | "createdAt">): Promise<string> {
+    const id = this.generateId()
+
+    const notification = {
+      id,
+      user_id: notificationData.userId,
+      type: notificationData.type,
+      title: notificationData.title,
+      message: notificationData.message,
+      read_status: notificationData.read,
+      created_at: new Date(),
     }
-    return NotificationService.instance
+
+    await this.create(notification)
+    return id
   }
 
-  getNotifications(): Notification[] {
-    return this.notifications
+  async getNotificationsForUser(userId: string, limit = 50): Promise<Notification[]> {
+    const query = `
+      SELECT * FROM notifications 
+      WHERE user_id = ? 
+      ORDER BY created_at DESC 
+      LIMIT ?
+    `
+    const results = await executeQuery(query, [userId, limit])
+
+    return results.map(this.mapToNotification)
   }
 
-  getUnreadCount(): number {
-    return this.notifications.filter((n) => !n.read).length
+  async getUnreadNotificationsForUser(userId: string): Promise<Notification[]> {
+    const query = `
+      SELECT * FROM notifications 
+      WHERE user_id = ? AND read_status = FALSE 
+      ORDER BY created_at DESC
+    `
+    const results = await executeQuery(query, [userId])
+
+    return results.map(this.mapToNotification)
   }
 
-  markAsRead(id: string): void {
-    this.notifications = this.notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
-    this.notifyListeners()
+  async markAsRead(notificationId: string): Promise<boolean> {
+    return await this.update(notificationId, {
+      read_status: true,
+    })
   }
 
-  markAllAsRead(): void {
-    this.notifications = this.notifications.map((n) => ({ ...n, read: true }))
-    this.notifyListeners()
+  async markAllAsReadForUser(userId: string): Promise<boolean> {
+    const query = "UPDATE notifications SET read_status = TRUE WHERE user_id = ?"
+    const result = await executeQuery(query, [userId])
+    return result.affectedRows > 0
   }
 
-  addNotification(notification: Omit<Notification, "id" | "createdAt">): void {
-    const newNotification: Notification = {
-      ...notification,
-      id: Math.random().toString(36).substr(2, 9),
-      createdAt: new Date().toISOString(),
+  async getUnreadCount(userId: string): Promise<number> {
+    const query = "SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND read_status = FALSE"
+    const results = await executeQuery(query, [userId])
+    return results[0].count
+  }
+
+  async deleteOldNotifications(daysOld = 30): Promise<number> {
+    const query = `
+      DELETE FROM notifications 
+      WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY)
+    `
+    const result = await executeQuery(query, [daysOld])
+    return result.affectedRows
+  }
+
+  // Specific notification creators
+  async createMaintenanceReminder(userId: string, vehicleId: string, description: string): Promise<string> {
+    return await this.createNotification({
+      userId,
+      type: "maintenance",
+      title: "Maintenance Reminder",
+      message: `Vehicle ${vehicleId}: ${description}`,
+      read: false,
+    })
+  }
+
+  async createLicenseExpiryAlert(userId: string, driverName: string, expiryDate: string): Promise<string> {
+    return await this.createNotification({
+      userId,
+      type: "license_expiry",
+      title: "License Expiry Alert",
+      message: `${driverName}'s license expires on ${expiryDate}`,
+      read: false,
+    })
+  }
+
+  async createIncidentAlert(userId: string, vehicleId: string, incidentType: string): Promise<string> {
+    return await this.createNotification({
+      userId,
+      type: "incident",
+      title: "Incident Reported",
+      message: `${incidentType} reported for vehicle ${vehicleId}`,
+      read: false,
+    })
+  }
+
+  private mapToNotification(row: any): Notification {
+    return {
+      id: row.id,
+      userId: row.user_id,
+      type: row.type,
+      title: row.title,
+      message: row.message,
+      read: row.read_status,
+      createdAt: row.created_at,
     }
-    this.notifications.unshift(newNotification)
-    this.notifyListeners()
   }
 
-  subscribe(listener: (notifications: Notification[]) => void): () => void {
-    this.listeners.push(listener)
-    return () => {
-      this.listeners = this.listeners.filter((l) => l !== listener)
-    }
-  }
-
-  private notifyListeners(): void {
-    this.listeners.forEach((listener) => listener(this.notifications))
-  }
-
-  // Client-side email notification methods that call API routes
-  async sendMaintenanceReminder(vehicleId: string, dueDate: string): Promise<void> {
-    try {
-      const response = await fetch("/api/email/maintenance-reminder", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vehicleId, dueDate }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to send maintenance reminder")
-      }
-    } catch (error) {
-      console.error("Error sending maintenance reminder:", error)
-      throw error
-    }
-  }
-
-  async sendLicenseExpiryAlert(driverId: string, expiryDate: string): Promise<void> {
-    try {
-      const response = await fetch("/api/email/license-expiry", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ driverId, expiryDate }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to send license expiry alert")
-      }
-    } catch (error) {
-      console.error("Error sending license expiry alert:", error)
-      throw error
-    }
-  }
-
-  async sendWelcomeEmail(userEmail: string, userName: string): Promise<void> {
-    try {
-      const response = await fetch("/api/email/welcome", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userEmail, userName }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to send welcome email")
-      }
-    } catch (error) {
-      console.error("Error sending welcome email:", error)
-      throw error
-    }
+  private generateId(): string {
+    return Date.now().toString() + Math.random().toString(36).substr(2, 9)
   }
 }
 
-export const notificationService = NotificationService.getInstance()
+export const notificationService = new NotificationService()

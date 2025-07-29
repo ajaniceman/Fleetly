@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { NotificationBell } from "@/components/notification-bell"
 import { LanguageSelector } from "@/components/language-selector"
 import { CurrencySelector } from "@/components/currency-selector"
-import { ModeToggle } from "@/components/mode-toggle"
 import { User, LogOut } from "lucide-react"
 import {
   DropdownMenu,
@@ -22,7 +21,7 @@ export function Header() {
   const [currentCurrency, setCurrentCurrency] = useState("USD")
 
   const handleSignOut = () => {
-    // Handle sign out logic
+    localStorage.removeItem("auth_token")
     window.location.href = "/login"
   }
 
@@ -36,7 +35,6 @@ export function Header() {
         <NotificationBell />
         <LanguageSelector currentLanguage={currentLanguage} onLanguageChange={setCurrentLanguage} />
         <CurrencySelector currentCurrency={currentCurrency} onCurrencyChange={setCurrentCurrency} />
-        <ModeToggle />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

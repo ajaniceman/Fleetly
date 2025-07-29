@@ -1,16 +1,36 @@
 import { BaseService } from "./base-service"
-import bcrypt from "bcryptjs"
-import jwt from "jsonwebtoken"
 import type { User } from "@/lib/types"
+import { executeQuery } from "@/lib/database/connection"
+import bcrypt from "bcryptjs"
 
 export class UserService extends BaseService {
   constructor() {
     super("users")
   }
 
-  async authenticate(email: string, password: string): Promise<{ user: User; token: string } | null> {
-    const query = "SELECT * FROM users WHERE email = ? AND is_active = TRUE"
-    const results = (await this.executeQuery(query, [email])) as User[]
+  async createUser(userData: Omit<User, "id" | "createdAt" | "updatedAt"> & { password: string }): Promise<string> {
+    const hashedPassword = await bcrypt.hash(userData.password, 10)
+    const id = this.generateId()
+
+    const user = {
+      id,
+      email: userData.email,
+      password_hash: hashedPassword,
+      first_name: userData.firstName,
+      last_name: userData.lastName,
+      role: userData.role,
+      status: userData.status,
+      created_at: new Date(),
+      updated_at: new Date(),
+    }
+
+    await this.create(user)
+    return id
+  }
+
+  async authenticateUser(email: string, password: string): Promise<User | null> {
+    const query = 'SELECT * FROM users WHERE email = ? AND status = "active"'
+    const results = await executeQuery(query, [email])
 
     if (results.length === 0) {
       return null
@@ -23,55 +43,54 @@ export class UserService extends BaseService {
       return null
     }
 
-    // Update last login
-    await this.update(user.id, { last_login: new Date() })
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || "fallback-secret",
-      { expiresIn: process.env.JWT_EXPIRES_IN || "24h" },
-    )
-
-    // Remove password hash from response
+    // Return user without password hash
     const { password_hash, ...userWithoutPassword } = user
-
     return {
-      user: userWithoutPassword as User,
-      token,
+      ...userWithoutPassword,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
     }
   }
 
-  async createUser(userData: {
-    email: string
-    password: string
-    name: string
-    role?: "admin" | "manager" | "driver"
-  }): Promise<string> {
-    const hashedPassword = await bcrypt.hash(userData.password, 10)
+  async findByEmail(email: string): Promise<User | null> {
+    const results = await this.findByField("email", email)
+    if (results.length === 0) return null
 
-    return await this.create({
-      email: userData.email,
+    const user = results[0]
+    return {
+      ...user,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
+    }
+  }
+
+  async updatePassword(id: string, newPassword: string): Promise<boolean> {
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    return await this.update(id, {
       password_hash: hashedPassword,
-      name: userData.name,
-      role: userData.role || "driver",
+      updated_at: new Date(),
     })
   }
 
-  async updatePassword(userId: string, newPassword: string): Promise<void> {
-    const hashedPassword = await bcrypt.hash(newPassword, 10)
-    await this.update(userId, { password_hash: hashedPassword })
+  async getActiveDrivers(): Promise<User[]> {
+    const query = 'SELECT * FROM users WHERE role = "driver" AND status = "active"'
+    const results = await executeQuery(query)
+
+    return results.map((user: any) => ({
+      ...user,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
+    }))
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    const query = "SELECT * FROM users WHERE email = ?"
-    const results = (await this.executeQuery(query, [email])) as User[]
-    return results.length > 0 ? results[0] : null
-  }
-
-  private async executeQuery(query: string, params: any[] = []) {
-    const { executeQuery } = await import("@/lib/database/connection")
-    return executeQuery(query, params)
+  private generateId(): string {
+    return Date.now().toString() + Math.random().toString(36).substr(2, 9)
   }
 }
 
