@@ -21,47 +21,41 @@
     "total": "Total",
     "cost": "Costo",
     "quantity": "Cantidad",
-    "location": "Ubicación"
+    "location": "Ubicación",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "pending": "Pendiente",
+    "completed": "Completado",
+    "scheduled": "Programado"
   },
   "navigation": {
-    "dashboard": "Panel",
+    "dashboard": "Panel de Control",
     "vehicles": "Vehículos",
     "drivers": "Conductores",
     "maintenance": "Mantenimiento",
     "fuel": "Combustible",
     "incidents": "Incidentes",
-    "reports": "Reportes",
+    "reports": "Informes",
     "settings": "Configuración"
   },
   "dashboard": {
     "title": "Panel de Control",
-    "subtitle": "¡Bienvenido de vuelta! Esto es lo que está pasando con tu flota hoy.",
+    "welcome": "¡Bienvenido de vuelta! Esto es lo que está pasando con tu flota.",
     "totalVehicles": "Total de Vehículos",
-    "activeDrivers": "Conductores Activos",
-    "inMaintenance": "En Mantenimiento",
-    "avgFuelEfficiency": "Eficiencia Promedio de Combustible",
-    "upcomingMaintenance": "Mantenimiento Próximo",
-    "recentActivity": "Actividad Reciente",
-    "quickActions": "Acciones Rápidas"
+    "totalDrivers": "Total de Conductores",
+    "pendingMaintenance": "Mantenimiento Pendiente",
+    "monthlyFuelCost": "Costo Mensual de Combustible"
   },
   "vehicles": {
     "title": "Vehículos",
-    "subtitle": "Gestiona los vehículos de tu flota y su información",
+    "subtitle": "Gestiona los vehículos de tu flota",
     "addVehicle": "Agregar Vehículo",
     "licensePlate": "Placa",
-    "make": "Marca",
-    "model": "Modelo",
+    "makeModel": "Marca y Modelo",
     "year": "Año",
-    "vin": "VIN",
-    "currentDriver": "Conductor Actual",
-    "nextService": "Próximo Servicio",
+    "status": "Estado",
     "mileage": "Kilometraje",
-    "fuelType": "Tipo de Combustible",
-    "status": {
-      "active": "Activo",
-      "maintenance": "Mantenimiento",
-      "outOfService": "Fuera de Servicio"
-    }
+    "fuelType": "Tipo de Combustible"
   },
   "drivers": {
     "title": "Conductores",

@@ -1,178 +1,124 @@
-import type { Timestamp } from "firebase/firestore"
-
-export interface User {
-  id: string
-  name: string
-  email: string
-  role: "admin" | "manager" | "driver"
-  avatar?: string
-  preferences: {
-    theme: "light" | "dark"
-    language: "en" | "es" | "fr" | "de"
-    notifications: {
-      email: boolean
-      push: boolean
-      maintenance: boolean
-      fuel: boolean
-      incidents: boolean
-    }
-  }
-  lastLogin?: Timestamp
-  createdAt: Timestamp
-  updatedAt: Timestamp
-  createdBy: string
-}
-
 export interface Vehicle {
-  id: string
-  licensePlate: string
+  id: number
+  license_plate: string
   make: string
   model: string
   year: number
   vin: string
-  status: "active" | "maintenance" | "out-of-service"
-  currentDriver?: string
-  nextServiceDue: Timestamp
+  status: "active" | "maintenance" | "inactive"
   mileage: number
-  fuelType: string
-  purchaseDate: Timestamp
-  purchaseCost: number
-  registrationExpiry?: Timestamp
-  insuranceExpiry?: Timestamp
-  lastInspection?: Timestamp
-  nextInspectionDue?: Timestamp
-  image?: string
-  createdAt: Timestamp
-  updatedAt: Timestamp
-  createdBy: string
+  fuel_type: "gasoline" | "diesel" | "electric" | "hybrid"
+  driver_id?: number
+  created_at: Date
+  updated_at: Date
 }
 
 export interface Driver {
-  id: string
+  id: number
   name: string
-  employeeId: string
   email: string
   phone: string
-  licenseNumber: string
-  licenseExpiry: Timestamp
-  licenseIssueDate?: Timestamp
-  medicalCertificateExpiry?: Timestamp
-  dateOfBirth?: Timestamp
-  status: "active" | "on-leave" | "suspended"
-  assignedVehicle?: string
-  hireDate: Timestamp
-  emergencyContact: {
-    name: string
-    phone: string
-  }
-  avatar?: string
-  createdAt: Timestamp
-  updatedAt: Timestamp
-  createdBy: string
+  license_number: string
+  license_expiry: Date
+  status: "active" | "inactive" | "suspended"
+  hire_date: Date
+  created_at: Date
+  updated_at: Date
 }
 
-export interface MaintenanceTask {
-  id: string
-  vehicleId: string
-  vehicleLicensePlate: string
-  serviceType: string
+export interface MaintenanceRecord {
+  id: number
+  vehicle_id: number
+  service_type: string
   description: string
-  scheduledDate: Timestamp
-  dueDate: Timestamp
-  completionDate?: Timestamp
-  status: "scheduled" | "in-progress" | "completed" | "overdue"
-  priority: "low" | "medium" | "high" | "critical"
-  assignedMechanic?: string
-  estimatedCost: number
-  actualCost?: number
-  notes?: string
-  createdAt: Timestamp
-  updatedAt: Timestamp
-  createdBy: string
+  scheduled_date: Date
+  completed_date?: Date
+  cost: number
+  mileage: number
+  status: "scheduled" | "in_progress" | "completed" | "overdue"
+  created_at: Date
+  updated_at: Date
 }
 
-export interface FuelEntry {
-  id: string
-  vehicleId: string
-  vehicleLicensePlate: string
-  driverId: string
-  driverName: string
-  date: Timestamp
-  odometerReading: number
-  fuelType: string
-  quantity: number
-  unitCost: number
-  totalCost: number
-  location: string
-  notes?: string
-  createdAt: Timestamp
-  updatedAt: Timestamp
-  createdBy: string
+export interface FuelRecord {
+  id: number
+  vehicle_id: number
+  driver_id: number
+  fuel_amount: number
+  cost_per_unit: number
+  total_cost: number
+  odometer_reading: number
+  fuel_station: string
+  receipt_number: string
+  date: Date
+  created_at: Date
+  updated_at: Date
 }
 
 export interface Incident {
-  id: string
-  incidentId: string
-  date: Timestamp
-  vehicleId: string
-  vehicleLicensePlate: string
-  driverId: string
-  driverName: string
-  type: "accident" | "breakdown" | "violation" | "other"
-  severity: "low" | "medium" | "high" | "critical"
-  status: "reported" | "investigating" | "resolved" | "closed"
+  id: number
+  incident_id: string
+  vehicle_id: number
+  driver_id: number
+  type: "accident" | "breakdown" | "violation" | "theft"
+  severity: "minor" | "medium" | "major" | "critical"
   description: string
   location: string
-  reportedBy: string
-  estimatedCost?: number
-  actualCost?: number
-  createdAt: Timestamp
-  updatedAt: Timestamp
-  createdBy: string
+  date: Date
+  status: "pending" | "investigating" | "resolved"
+  cost: number
+  created_at: Date
+  updated_at: Date
+}
+
+export interface User {
+  id: number
+  name: string
+  email: string
+  role: "admin" | "manager" | "driver"
+  is_active: boolean
+  created_at: Date
+  updated_at: Date
 }
 
 export interface Notification {
-  id: string
-  userId: string
-  type: "maintenance" | "license_expiry" | "document_expiry" | "incident" | "system"
+  id: number
+  user_id: number
+  type: "maintenance_reminder" | "license_expiry" | "incident_alert" | "system"
   title: string
   message: string
   priority: "low" | "medium" | "high" | "critical"
-  read: boolean
-  actionUrl?: string
-  relatedEntityId?: string
-  relatedEntityType?: string
-  createdAt: Timestamp
-  expiresAt?: Timestamp
+  is_read: boolean
+  action_url?: string
+  related_entity_type?: string
+  related_entity_id?: number
+  expires_at?: Date
+  email_sent?: boolean
+  email_sent_at?: Date
+  created_at: Date
+  updated_at: Date
 }
 
-export interface EmailTemplate {
-  id: string
-  name: string
-  subject: string
-  htmlContent: string
-  textContent: string
-  variables: string[]
-  type: "maintenance_reminder" | "license_expiry" | "document_expiry" | "incident_alert" | "welcome"
-  createdAt: Timestamp
-  updatedAt: Timestamp
+export interface CreateNotificationData {
+  user_id: number
+  type: Notification["type"]
+  title: string
+  message: string
+  priority: Notification["priority"]
+  action_url?: string
+  related_entity_type?: string
+  related_entity_id?: number
+  expires_at?: string
+  sendEmail?: boolean
 }
 
-export interface NotificationSettings {
-  maintenanceReminder: {
-    enabled: boolean
-    daysBefore: number[]
-  }
-  licenseExpiry: {
-    enabled: boolean
-    daysBefore: number[]
-  }
-  documentExpiry: {
-    enabled: boolean
-    daysBefore: number[]
-  }
-  incidentAlert: {
-    enabled: boolean
-    immediate: boolean
-  }
+export interface DashboardStats {
+  totalVehicles: number
+  activeVehicles: number
+  totalDrivers: number
+  activeDrivers: number
+  pendingMaintenance: number
+  totalIncidents: number
+  monthlyFuelCost: number
+  averageFuelEfficiency: number
 }

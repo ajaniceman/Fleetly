@@ -1,318 +1,344 @@
 "use client"
 
+import { useState } from "react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts"
-import { FileText, Download, Calendar, TrendingUp, DollarSign, Car } from "lucide-react"
-
-// Sample data for reports
-const fleetUtilizationData = [
-  { month: "Jan", utilization: 85, maintenance: 10, idle: 5 },
-  { month: "Feb", utilization: 88, maintenance: 8, idle: 4 },
-  { month: "Mar", utilization: 82, maintenance: 12, idle: 6 },
-  { month: "Apr", utilization: 90, maintenance: 7, idle: 3 },
-  { month: "May", utilization: 87, maintenance: 9, idle: 4 },
-  { month: "Jun", utilization: 89, maintenance: 8, idle: 3 },
-]
-
-const maintenanceCostTrends = [
-  { month: "Jan", preventive: 15000, corrective: 8000, emergency: 3000 },
-  { month: "Feb", preventive: 18000, corrective: 6000, emergency: 2000 },
-  { month: "Mar", preventive: 16000, corrective: 9000, emergency: 4000 },
-  { month: "Apr", preventive: 20000, corrective: 5000, emergency: 1500 },
-  { month: "May", preventive: 17000, corrective: 7000, emergency: 2500 },
-  { month: "Jun", preventive: 19000, corrective: 6500, emergency: 2000 },
-]
-
-const driverPerformanceData = [
-  { name: "Excellent", value: 45, color: "#10b981" },
-  { name: "Good", value: 35, color: "#3b82f6" },
-  { name: "Average", value: 15, color: "#f59e0b" },
-  { name: "Needs Improvement", value: 5, color: "#ef4444" },
-]
-
-const fuelEfficiencyTrends = [
-  { month: "Jan", efficiency: 8.2, cost: 12500 },
-  { month: "Feb", efficiency: 7.9, cost: 11800 },
-  { month: "Mar", efficiency: 8.1, cost: 12200 },
-  { month: "Apr", efficiency: 7.8, cost: 11600 },
-  { month: "May", efficiency: 8.0, cost: 12000 },
-  { month: "Jun", efficiency: 7.7, cost: 11400 },
-]
-
-const reportTemplates = [
-  {
-    id: 1,
-    name: "Fleet Utilization Report",
-    description: "Vehicle uptime, idle time, and mileage analysis",
-    icon: Car,
-    color: "text-blue-600",
-    bgColor: "bg-blue-100",
-  },
-  {
-    id: 2,
-    name: "Maintenance Cost Report",
-    description: "Breakdown of maintenance costs by vehicle and type",
-    icon: DollarSign,
-    color: "text-green-600",
-    bgColor: "bg-green-100",
-  },
-  {
-    id: 3,
-    name: "Driver Performance Report",
-    description: "Incidents, mileage, and fuel efficiency per driver",
-    icon: TrendingUp,
-    color: "text-purple-600",
-    bgColor: "bg-purple-100",
-  },
-  {
-    id: 4,
-    name: "Fuel Cost Analysis",
-    description: "Fuel consumption trends and cost optimization",
-    icon: FileText,
-    color: "text-orange-600",
-    bgColor: "bg-orange-100",
-  },
-  {
-    id: 5,
-    name: "Compliance Report",
-    description: "License expiry, inspection due dates, and certifications",
-    icon: Calendar,
-    color: "text-red-600",
-    bgColor: "bg-red-100",
-  },
-  {
-    id: 6,
-    name: "Custom Report Builder",
-    description: "Create custom reports with drag-and-drop interface",
-    icon: FileText,
-    color: "text-gray-600",
-    bgColor: "bg-gray-100",
-  },
-]
+import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { BarChart3, Download, FileText, TrendingUp, DollarSign } from "lucide-react"
+import { mockVehicles, mockDrivers, mockMaintenanceRecords, mockFuelRecords, mockIncidents } from "@/lib/data"
 
 export default function ReportsPage() {
-  return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Page header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports & Analytics</h1>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Generate insights and analyze your fleet performance
-            </p>
-          </div>
-          <Button className="rounded-lg">
-            <FileText className="h-4 w-4 mr-2" />
-            Custom Report Builder
-          </Button>
-        </div>
+  const [selectedReport, setSelectedReport] = useState("overview")
+  const [dateRange, setDateRange] = useState("30")
 
-        {/* Key metrics overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="rounded-xl">
-            <CardHeader>
-              <CardTitle>Fleet Utilization Trends</CardTitle>
-              <CardDescription>Monthly vehicle utilization rates</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={fleetUtilizationData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="utilization" stackId="a" fill="#10b981" name="Active" />
-                  <Bar dataKey="maintenance" stackId="a" fill="#f59e0b" name="Maintenance" />
-                  <Bar dataKey="idle" stackId="a" fill="#ef4444" name="Idle" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+  const reportTypes = [
+    { value: "overview", label: "Fleet Overview", icon: BarChart3 },
+    { value: "maintenance", label: "Maintenance Report", icon: FileText },
+    { value: "fuel", label: "Fuel Consumption", icon: TrendingUp },
+    { value: "incidents", label: "Incident Report", icon: FileText },
+    { value: "driver", label: "Driver Performance", icon: FileText },
+  ]
 
-          <Card className="rounded-xl">
-            <CardHeader>
-              <CardTitle>Maintenance Cost Analysis</CardTitle>
-              <CardDescription>Breakdown of maintenance expenses</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={maintenanceCostTrends}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="preventive" stroke="#3b82f6" strokeWidth={2} name="Preventive" />
-                  <Line type="monotone" dataKey="corrective" stroke="#f59e0b" strokeWidth={2} name="Corrective" />
-                  <Line type="monotone" dataKey="emergency" stroke="#ef4444" strokeWidth={2} name="Emergency" />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
+  const generateOverviewStats = () => {
+    const totalVehicles = mockVehicles.length
+    const activeVehicles = mockVehicles.filter((v) => v.status === "active").length
+    const totalDrivers = mockDrivers.length
+    const activeDrivers = mockDrivers.filter((d) => d.status === "active").length
+    const totalMaintenanceCost = mockMaintenanceRecords.reduce((sum, r) => sum + r.cost, 0)
+    const totalFuelCost = mockFuelRecords.reduce((sum, r) => sum + r.total_cost, 0)
+    const totalIncidentCost = mockIncidents.reduce((sum, i) => sum + i.cost, 0)
+    const totalOperatingCost = totalMaintenanceCost + totalFuelCost + totalIncidentCost
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="rounded-xl">
-            <CardHeader>
-              <CardTitle>Driver Performance Distribution</CardTitle>
-              <CardDescription>Overall driver performance ratings</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={driverPerformanceData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {driverPerformanceData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                {driverPerformanceData.map((item, index) => (
-                  <div key={index} className="flex items-center">
-                    <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: item.color }} />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {item.name}: {item.value}%
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+    return {
+      totalVehicles,
+      activeVehicles,
+      totalDrivers,
+      activeDrivers,
+      totalMaintenanceCost,
+      totalFuelCost,
+      totalIncidentCost,
+      totalOperatingCost,
+    }
+  }
 
-          <Card className="rounded-xl">
-            <CardHeader>
-              <CardTitle>Fuel Efficiency & Cost Trends</CardTitle>
-              <CardDescription>Monthly fuel consumption and costs</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={fuelEfficiencyTrends}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
-                  <Tooltip />
-                  <Line
-                    yAxisId="left"
-                    type="monotone"
-                    dataKey="efficiency"
-                    stroke="#8b5cf6"
-                    strokeWidth={2}
-                    name="Efficiency (L/100km)"
-                  />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="cost"
-                    stroke="#10b981"
-                    strokeWidth={2}
-                    name="Cost ($)"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
+  const stats = generateOverviewStats()
 
-        {/* Report templates */}
-        <Card className="rounded-xl">
-          <CardHeader>
-            <CardTitle>Report Templates</CardTitle>
-            <CardDescription>Pre-built reports and analytics dashboards</CardDescription>
+  const renderOverviewReport = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {reportTemplates.map((template) => (
-                <Card
-                  key={template.id}
-                  className="rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors cursor-pointer"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-4">
-                      <div className={`flex-shrink-0 p-3 rounded-lg ${template.bgColor}`}>
-                        <template.icon className={`h-6 w-6 ${template.color}`} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{template.name}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{template.description}</p>
-                        <div className="flex space-x-2">
-                          <Button size="sm" className="rounded-lg">
-                            Generate
-                          </Button>
-                          <Button variant="outline" size="sm" className="rounded-lg bg-transparent">
-                            <Download className="h-4 w-4 mr-1" />
-                            Export
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <div className="text-2xl font-bold">{stats.totalVehicles}</div>
+            <p className="text-xs text-muted-foreground">{stats.activeVehicles} active</p>
           </CardContent>
         </Card>
 
-        {/* Recent reports */}
-        <Card className="rounded-xl">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Drivers</CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalDrivers}</div>
+            <p className="text-xs text-muted-foreground">{stats.activeDrivers} active</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Operating Cost</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">${stats.totalOperatingCost.toFixed(2)}</div>
+            <p className="text-xs text-muted-foreground">Last {dateRange} days</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Fuel Efficiency</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">28.5 MPG</div>
+            <p className="text-xs text-muted-foreground">Fleet average</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
           <CardHeader>
-            <CardTitle>Recent Reports</CardTitle>
-            <CardDescription>Recently generated reports and exports</CardDescription>
+            <CardTitle>Cost Breakdown</CardTitle>
+            <CardDescription>Operating costs by category</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { name: "Fleet Utilization Report - June 2024", date: "2024-06-30", type: "PDF", size: "2.4 MB" },
-                { name: "Maintenance Cost Analysis - Q2 2024", date: "2024-06-28", type: "Excel", size: "1.8 MB" },
-                { name: "Driver Performance Summary", date: "2024-06-25", type: "PDF", size: "1.2 MB" },
-                { name: "Fuel Efficiency Report - May 2024", date: "2024-05-31", type: "CSV", size: "0.8 MB" },
-              ].map((report, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                >
-                  <div className="flex items-center space-x-3">
-                    <FileText className="h-5 w-5 text-gray-400" />
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{report.name}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Generated on {new Date(report.date).toLocaleDateString()} • {report.type} • {report.size}
-                      </p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    <Download className="h-4 w-4" />
-                  </Button>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm">Fuel</span>
                 </div>
-              ))}
+                <div className="text-right">
+                  <div className="font-medium">${stats.totalFuelCost.toFixed(2)}</div>
+                  <div className="text-xs text-gray-500">
+                    {((stats.totalFuelCost / stats.totalOperatingCost) * 100).toFixed(1)}%
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-sm">Maintenance</span>
+                </div>
+                <div className="text-right">
+                  <div className="font-medium">${stats.totalMaintenanceCost.toFixed(2)}</div>
+                  <div className="text-xs text-gray-500">
+                    {((stats.totalMaintenanceCost / stats.totalOperatingCost) * 100).toFixed(1)}%
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span className="text-sm">Incidents</span>
+                </div>
+                <div className="text-right">
+                  <div className="font-medium">${stats.totalIncidentCost.toFixed(2)}</div>
+                  <div className="text-xs text-gray-500">
+                    {((stats.totalIncidentCost / stats.totalOperatingCost) * 100).toFixed(1)}%
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Fleet Status</CardTitle>
+            <CardDescription>Current vehicle status distribution</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Badge variant="default">Active</Badge>
+                </div>
+                <div className="font-medium">{mockVehicles.filter((v) => v.status === "active").length} vehicles</div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Badge variant="destructive">Maintenance</Badge>
+                </div>
+                <div className="font-medium">
+                  {mockVehicles.filter((v) => v.status === "maintenance").length} vehicles
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Badge variant="secondary">Inactive</Badge>
+                </div>
+                <div className="font-medium">{mockVehicles.filter((v) => v.status === "inactive").length} vehicles</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+
+  const renderMaintenanceReport = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Total Maintenance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{mockMaintenanceRecords.length}</div>
+            <p className="text-xs text-muted-foreground">Records</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {mockMaintenanceRecords.filter((r) => r.status === "completed").length}
+            </div>
+            <p className="text-xs text-muted-foreground">Services</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">${stats.totalMaintenanceCost.toFixed(2)}</div>
+            <p className="text-xs text-muted-foreground">Maintenance spend</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Maintenance by Service Type</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {Array.from(new Set(mockMaintenanceRecords.map((r) => r.service_type))).map((serviceType) => {
+              const records = mockMaintenanceRecords.filter((r) => r.service_type === serviceType)
+              const cost = records.reduce((sum, r) => sum + r.cost, 0)
+              return (
+                <div key={serviceType} className="flex items-center justify-between">
+                  <span className="font-medium">{serviceType}</span>
+                  <div className="text-right">
+                    <div className="font-medium">${cost.toFixed(2)}</div>
+                    <div className="text-xs text-gray-500">{records.length} records</div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+
+  const renderCurrentReport = () => {
+    switch (selectedReport) {
+      case "overview":
+        return renderOverviewReport()
+      case "maintenance":
+        return renderMaintenanceReport()
+      case "fuel":
+        return (
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center text-gray-500">
+                <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Fuel consumption report coming soon...</p>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      case "incidents":
+        return (
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center text-gray-500">
+                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Incident report coming soon...</p>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      case "driver":
+        return (
+          <Card>
+            <CardContent className="p-6">
+              <div className="text-center text-gray-500">
+                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Driver performance report coming soon...</p>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      default:
+        return renderOverviewReport()
+    }
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
+            <p className="text-gray-600">Generate and view fleet analytics and reports</p>
+          </div>
+          <Button>
+            <Download className="h-4 w-4 mr-2" />
+            Export Report
+          </Button>
+        </div>
+
+        {/* Report Controls */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Report Configuration</CardTitle>
+            <CardDescription>Select report type and date range</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-2 block">Report Type</label>
+                <Select value={selectedReport} onValueChange={setSelectedReport}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select report type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {reportTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        <div className="flex items-center space-x-2">
+                          <type.icon className="h-4 w-4" />
+                          <span>{type.label}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-2 block">Date Range</label>
+                <Select value={dateRange} onValueChange={setDateRange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select date range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7">Last 7 days</SelectItem>
+                    <SelectItem value="30">Last 30 days</SelectItem>
+                    <SelectItem value="90">Last 90 days</SelectItem>
+                    <SelectItem value="365">Last year</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Report Content */}
+        {renderCurrentReport()}
       </div>
     </DashboardLayout>
   )

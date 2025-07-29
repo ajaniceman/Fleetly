@@ -27,6 +27,9 @@ interface UseFirebaseReturn {
   loading: boolean
   displayUserId: string
   error: string | null
+  isConnected: boolean
+  connect: () => void
+  disconnect: () => void
 }
 
 let firebaseApp: FirebaseApp | null = null
@@ -38,6 +41,7 @@ export function useFirebase(): UseFirebaseReturn {
   const [loading, setLoading] = useState(true)
   const [displayUserId, setDisplayUserId] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
     const initializeFirebase = async () => {
@@ -101,6 +105,7 @@ export function useFirebase(): UseFirebaseReturn {
           setLoading(false)
         })
 
+        setIsConnected(true)
         return unsubscribe
       } catch (initError) {
         console.error("Firebase initialization failed:", initError)
@@ -118,6 +123,7 @@ export function useFirebase(): UseFirebaseReturn {
       if (unsubscribe && typeof unsubscribe === "function") {
         unsubscribe()
       }
+      setIsConnected(false)
     }
   }, [])
 
@@ -129,5 +135,8 @@ export function useFirebase(): UseFirebaseReturn {
     loading,
     displayUserId,
     error,
+    isConnected,
+    connect: () => setIsConnected(true),
+    disconnect: () => setIsConnected(false),
   }
 }

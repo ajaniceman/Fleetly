@@ -1,44 +1,36 @@
-"use client"
+import { executeQuery, executeQuerySingle } from "../database/connection"
 
-import { executeQuery, executeTransaction } from "../database/connection"
-import type { PaginationOptions, FilterOptions, SortOptions } from "../types"
-
-export interface BaseEntity {
-  id: number
-  created_at: Date
-  updated_at: Date
-  is_active: boolean
-}
-
-export interface CreateOptions {
-  userId: number
-  skipAudit?: boolean
-}
-
-export interface UpdateOptions {
-  userId: number
-  skipAudit?: boolean
-}
-
-export interface QueryOptions {
-  limit?: number
-  offset?: number
-  orderBy?: string
-  orderDirection?: "ASC" | "DESC"
-  filters?: Record<string, any>
-  includeInactive?: boolean
-}
-
-export abstract class BaseService<T extends BaseEntity> {
+export abstract class BaseService<T> {
   protected tableName: string
-  protected primaryKey = "id"
 
   constructor(tableName: string) {
     this.tableName = tableName
   }
 
-  // Create a new record
-  async create(data: Partial<T>, userId?: number): Promise<T> {
+  // Get all records
+  async getAll(): Promise<T[]> {
+    try {
+      const query = `SELECT * FROM ${this.tableName} WHERE is_active = TRUE ORDER BY created_at DESC`
+      return await executeQuery<T>(query)
+    } catch (error) {
+      console.error(`Error getting all ${this.tableName}:`, error)
+      throw error
+    }
+  }
+
+  // Get record by ID
+  async getById(id: number): Promise<T | null> {
+    try {
+      const query = `SELECT * FROM ${this.tableName} WHERE id = ? AND is_active = TRUE`
+      return await executeQuerySingle<T>(query, [id])
+    } catch (error) {
+      console.error(`Error getting ${this.tableName} by ID:`, error)
+      throw error
+    }
+  }
+
+  // Create new record
+  async create(data: Partial<T>): Promise<T> {
     try {
       const fields = Object.keys(data).join(", ")
       const placeholders = Object.keys(data)
@@ -46,211 +38,113 @@ export abstract class BaseService<T extends BaseEntity> {
         .join(", ")
       const values = Object.values(data)
 
-      if (userId) {
-        values.push(userId)
+      const query = `INSERT INTO ${this.tableName} (${fields}) VALUES (${placeholders})`
+      const result = await executeQuery(query, values)
+
+      // Get the inserted record
+      const insertId = (result as any).insertId
+      const newRecord = await this.getById(insertId)
+
+      if (!newRecord) {
+        throw new Error("Failed to retrieve created record")
       }
 
-      const query = `
-        INSERT INTO ${this.tableName} (${fields}${userId ? ", created_by" : ""}) 
-        VALUES (${placeholders}${userId ? ", ?" : ""})
-      `
-
-      const result = await executeQuery(query, values)
-      const insertId = (result as any).insertId
-
-      return await this.findById(insertId)
+      return newRecord
     } catch (error) {
       console.error(`Error creating ${this.tableName}:`, error)
-      throw new Error(`Failed to create ${this.tableName}`)
+      throw error
     }
   }
 
-  // Find record by ID
-  async findById(id: number): Promise<T | null> {
-    try {
-      const query = `SELECT * FROM ${this.tableName} WHERE ${this.primaryKey} = ? AND is_active = TRUE`
-      const results = await executeQuery<T>(query, [id])
-      return results[0] || null
-    } catch (error) {
-      console.error(`Error finding ${this.tableName} by ID:`, error)
-      throw new Error(`Failed to find ${this.tableName}`)
-    }
-  }
-
-  // Find all records with pagination and filtering
-  async findAll(
-    options: {
-      pagination?: PaginationOptions
-      filters?: FilterOptions
-      sort?: SortOptions
-    } = {},
-  ): Promise<{ data: T[]; total: number; page: number; limit: number }> {
-    try {
-      const { pagination = { page: 1, limit: 10 }, filters = {}, sort = {} } = options
-
-      // Build WHERE clause
-      let whereClause = "WHERE is_active = TRUE"
-      const queryParams: any[] = []
-
-      if (filters.search && filters.searchFields) {
-        const searchConditions = filters.searchFields.map((field) => `${field} LIKE ?`).join(" OR ")
-        whereClause += ` AND (${searchConditions})`
-        filters.searchFields.forEach(() => queryParams.push(`%${filters.search}%`))
-      }
-
-      if (filters.status) {
-        whereClause += " AND status = ?"
-        queryParams.push(filters.status)
-      }
-
-      if (filters.dateFrom) {
-        whereClause += " AND created_at >= ?"
-        queryParams.push(filters.dateFrom)
-      }
-
-      if (filters.dateTo) {
-        whereClause += " AND created_at <= ?"
-        queryParams.push(filters.dateTo)
-      }
-
-      // Build ORDER BY clause
-      let orderClause = ""
-      if (sort.field && sort.direction) {
-        orderClause = `ORDER BY ${sort.field} ${sort.direction.toUpperCase()}`
-      } else {
-        orderClause = "ORDER BY created_at DESC"
-      }
-
-      // Build LIMIT clause
-      const offset = (pagination.page - 1) * pagination.limit
-      const limitClause = `LIMIT ${pagination.limit} OFFSET ${offset}`
-
-      // Get total count
-      const countQuery = `SELECT COUNT(*) as total FROM ${this.tableName} ${whereClause}`
-      const countResult = await executeQuery<{ total: number }>(countQuery, queryParams)
-      const total = countResult[0]?.total || 0
-
-      // Get data
-      const dataQuery = `SELECT * FROM ${this.tableName} ${whereClause} ${orderClause} ${limitClause}`
-      const data = await executeQuery<T>(dataQuery, queryParams)
-
-      return {
-        data,
-        total,
-        page: pagination.page,
-        limit: pagination.limit,
-      }
-    } catch (error) {
-      console.error(`Error finding all ${this.tableName}:`, error)
-      throw new Error(`Failed to fetch ${this.tableName}`)
-    }
-  }
-
-  // Update record by ID
-  async update(id: number, data: Partial<T>, userId?: number): Promise<T> {
+  // Update record
+  async update(id: number, data: Partial<T>): Promise<T | null> {
     try {
       const fields = Object.keys(data)
         .map((key) => `${key} = ?`)
         .join(", ")
       const values = [...Object.values(data), id]
 
-      if (userId) {
-        values.splice(-1, 0, userId) // Insert userId before id
-      }
-
-      const query = `
-        UPDATE ${this.tableName} 
-        SET ${fields}${userId ? ", updated_by = ?" : ""}, updated_at = CURRENT_TIMESTAMP 
-        WHERE ${this.primaryKey} = ? AND is_active = TRUE
-      `
-
+      const query = `UPDATE ${this.tableName} SET ${fields}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`
       await executeQuery(query, values)
-      return await this.findById(id)
+
+      return await this.getById(id)
     } catch (error) {
       console.error(`Error updating ${this.tableName}:`, error)
-      throw new Error(`Failed to update ${this.tableName}`)
+      throw error
     }
   }
 
-  // Soft delete record by ID
-  async delete(id: number, userId?: number): Promise<boolean> {
+  // Soft delete record
+  async delete(id: number): Promise<boolean> {
     try {
-      const values = [id]
-      if (userId) {
-        values.unshift(userId)
-      }
-
-      const query = `
-        UPDATE ${this.tableName} 
-        SET is_active = FALSE${userId ? ", updated_by = ?" : ""}, updated_at = CURRENT_TIMESTAMP 
-        WHERE ${this.primaryKey} = ?
-      `
-
-      const result = await executeQuery(query, values)
-      return (result as any).affectedRows > 0
+      const query = `UPDATE ${this.tableName} SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP WHERE id = ?`
+      await executeQuery(query, [id])
+      return true
     } catch (error) {
       console.error(`Error deleting ${this.tableName}:`, error)
-      throw new Error(`Failed to delete ${this.tableName}`)
+      throw error
     }
   }
 
-  // Hard delete record by ID (use with caution)
+  // Hard delete record (use with caution)
   async hardDelete(id: number): Promise<boolean> {
     try {
-      const query = `DELETE FROM ${this.tableName} WHERE ${this.primaryKey} = ?`
-      const result = await executeQuery(query, [id])
-      return (result as any).affectedRows > 0
+      const query = `DELETE FROM ${this.tableName} WHERE id = ?`
+      await executeQuery(query, [id])
+      return true
     } catch (error) {
       console.error(`Error hard deleting ${this.tableName}:`, error)
-      throw new Error(`Failed to hard delete ${this.tableName}`)
+      throw error
     }
   }
 
-  // Bulk operations
-  async bulkCreate(records: Partial<T>[], userId?: number): Promise<T[]> {
+  // Get records with pagination
+  async getPaginated(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    data: T[]
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }> {
     try {
-      const queries = records.map((record) => {
-        const fields = Object.keys(record).join(", ")
-        const placeholders = Object.keys(record)
-          .map(() => "?")
-          .join(", ")
-        const values = Object.values(record)
+      const offset = (page - 1) * limit
 
-        if (userId) {
-          values.push(userId)
-        }
+      // Get total count
+      const countQuery = `SELECT COUNT(*) as total FROM ${this.tableName} WHERE is_active = TRUE`
+      const countResult = await executeQuerySingle<{ total: number }>(countQuery)
+      const total = countResult?.total || 0
 
-        return {
-          query: `INSERT INTO ${this.tableName} (${fields}${userId ? ", created_by" : ""}) VALUES (${placeholders}${userId ? ", ?" : ""})`,
-          params: values,
-        }
-      })
+      // Get paginated data
+      const dataQuery = `SELECT * FROM ${this.tableName} WHERE is_active = TRUE ORDER BY created_at DESC LIMIT ? OFFSET ?`
+      const data = await executeQuery<T>(dataQuery, [limit, offset])
 
-      await executeTransaction(queries)
-
-      // Return the created records (simplified - in production you'd want to return actual IDs)
-      return records as T[]
+      return {
+        data,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      }
     } catch (error) {
-      console.error(`Error bulk creating ${this.tableName}:`, error)
-      throw new Error(`Failed to bulk create ${this.tableName}`)
+      console.error(`Error getting paginated ${this.tableName}:`, error)
+      throw error
     }
   }
 
-  // Custom query execution
-  protected async executeCustomQuery<R = any>(query: string, params: any[] = []): Promise<R[]> {
-    return await executeQuery<R>(query, params)
-  }
+  // Search records
+  async search(searchTerm: string, fields: string[]): Promise<T[]> {
+    try {
+      const searchConditions = fields.map((field) => `${field} LIKE ?`).join(" OR ")
+      const searchValues = fields.map(() => `%${searchTerm}%`)
 
-  // Validation helper
-  protected validateRequired(data: any, requiredFields: string[]): void {
-    const missingFields = requiredFields.filter((field) => !data[field])
-    if (missingFields.length > 0) {
-      throw new Error(`Missing required fields: ${missingFields.join(", ")}`)
+      const query = `SELECT * FROM ${this.tableName} WHERE is_active = TRUE AND (${searchConditions}) ORDER BY created_at DESC`
+      return await executeQuery<T>(query, searchValues)
+    } catch (error) {
+      console.error(`Error searching ${this.tableName}:`, error)
+      throw error
     }
-  }
-
-  // Sanitization helper
-  protected sanitizeInput(input: string): string {
-    return input.trim().replace(/[<>]/g, "")
   }
 }

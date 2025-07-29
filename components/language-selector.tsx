@@ -35,15 +35,15 @@ export function LanguageSelector() {
           <span className="sr-only">Select language</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end">
         {languages.map((language) => (
           <DropdownMenuItem
             key={language.code}
             onClick={() => changeLanguage(language.code)}
-            className={`flex items-center space-x-2 ${currentLanguage.code === language.code ? "bg-accent" : ""}`}
+            className={currentLanguage.code === language.code ? "bg-accent" : ""}
           >
-            <span className="text-lg">{language.flag}</span>
-            <span>{language.name}</span>
+            <span className="mr-2">{language.flag}</span>
+            {language.name}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

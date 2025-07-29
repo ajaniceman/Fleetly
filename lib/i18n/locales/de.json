@@ -21,7 +21,12 @@
     "total": "Gesamt",
     "cost": "Kosten",
     "quantity": "Menge",
-    "location": "Standort"
+    "location": "Standort",
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "pending": "Ausstehend",
+    "completed": "Abgeschlossen",
+    "scheduled": "Geplant"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -35,33 +40,22 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "subtitle": "Willkommen zurück! Hier ist, was heute mit Ihrer Flotte passiert.",
+    "welcome": "Willkommen zurück! Hier ist, was mit Ihrer Flotte passiert.",
     "totalVehicles": "Gesamte Fahrzeuge",
-    "activeDrivers": "Aktive Fahrer",
-    "inMaintenance": "In Wartung",
-    "avgFuelEfficiency": "Durchschnittliche Kraftstoffeffizienz",
-    "upcomingMaintenance": "Anstehende Wartung",
-    "recentActivity": "Letzte Aktivität",
-    "quickActions": "Schnellaktionen"
+    "totalDrivers": "Gesamte Fahrer",
+    "pendingMaintenance": "Ausstehende Wartung",
+    "monthlyFuelCost": "Monatliche Kraftstoffkosten"
   },
   "vehicles": {
     "title": "Fahrzeuge",
-    "subtitle": "Verwalten Sie Ihre Flottenfahrzeuge und deren Informationen",
+    "subtitle": "Verwalten Sie Ihre Flottenfahrzeuge",
     "addVehicle": "Fahrzeug Hinzufügen",
     "licensePlate": "Kennzeichen",
-    "make": "Marke",
-    "model": "Modell",
+    "makeModel": "Marke & Modell",
     "year": "Jahr",
-    "vin": "VIN",
-    "currentDriver": "Aktueller Fahrer",
-    "nextService": "Nächster Service",
+    "status": "Status",
     "mileage": "Kilometerstand",
-    "fuelType": "Kraftstoffart",
-    "status": {
-      "active": "Aktiv",
-      "maintenance": "Wartung",
-      "outOfService": "Außer Betrieb"
-    }
+    "fuelType": "Kraftstoffart"
   },
   "drivers": {
     "title": "Fahrer",

@@ -7,27 +7,17 @@ import { AlertCircle } from "lucide-react"
 
 interface CurrencyDisplayProps {
   amount: number
-  originalCurrency: string
+  currency?: string
   className?: string
-  showOriginal?: boolean
 }
 
-export function CurrencyDisplay({
-  amount,
-  originalCurrency,
-  className = "",
-  showOriginal = false,
-}: CurrencyDisplayProps) {
-  const [displayCurrency, setDisplayCurrency] = useState("USD")
+export function CurrencyDisplay({ amount, currency = "USD", className = "" }: CurrencyDisplayProps) {
+  const [displayCurrency, setDisplayCurrency] = useState(currency)
   const [convertedAmount, setConvertedAmount] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Get user's preferred currency
-    const savedCurrency = localStorage.getItem("currency_preference") || "USD"
-    setDisplayCurrency(savedCurrency)
-
     // Listen for currency changes
     const handleCurrencyChange = (event: CustomEvent) => {
       setDisplayCurrency(event.detail.currency)
@@ -41,7 +31,7 @@ export function CurrencyDisplay({
 
   useEffect(() => {
     const convertAmount = async () => {
-      if (originalCurrency === displayCurrency) {
+      if (currency === displayCurrency) {
         setConvertedAmount(amount)
         setIsLoading(false)
         return
@@ -51,7 +41,7 @@ export function CurrencyDisplay({
       setError(null)
 
       try {
-        const result = await currencyService.convertCurrency(amount, originalCurrency, displayCurrency)
+        const result = await currencyService.convertCurrency(amount, currency, displayCurrency)
         setConvertedAmount(result.convertedAmount)
       } catch (error) {
         console.error("Currency conversion error:", error)
@@ -63,7 +53,7 @@ export function CurrencyDisplay({
     }
 
     convertAmount()
-  }, [amount, originalCurrency, displayCurrency])
+  }, [amount, currency, displayCurrency])
 
   if (isLoading) {
     return <Skeleton className={`h-4 w-16 ${className}`} />
@@ -73,21 +63,12 @@ export function CurrencyDisplay({
     return (
       <span className={`text-muted-foreground flex items-center ${className}`}>
         <AlertCircle className="h-3 w-3 mr-1" />
-        {currencyService.formatCurrency(amount, originalCurrency)}
+        {currencyService.formatCurrency(amount, currency)}
       </span>
     )
   }
 
   const formattedAmount = currencyService.formatCurrency(convertedAmount || amount, displayCurrency)
 
-  const formattedOriginal = currencyService.formatCurrency(amount, originalCurrency)
-
-  return (
-    <span className={className}>
-      {formattedAmount}
-      {showOriginal && originalCurrency !== displayCurrency && (
-        <span className="text-xs text-muted-foreground ml-1">({formattedOriginal})</span>
-      )}
-    </span>
-  )
+  return <span className={className}>{formattedAmount}</span>
 }

@@ -1,5 +1,6 @@
 import { BaseService } from "./base-service"
 import { executeQuery } from "../database/connection"
+import fetch from "node-fetch"
 
 interface ExchangeRate {
   id: number
@@ -21,6 +22,23 @@ export class CurrencyService extends BaseService<ExchangeRate> {
   private static instance: CurrencyService
   private rateCache: Map<string, { rate: number; timestamp: number }> = new Map()
   private readonly CACHE_DURATION = 1000 * 60 * 60 // 1 hour in milliseconds
+  private exchangeRates: Record<string, number> = {
+    USD: 1.0,
+    EUR: 0.85,
+    GBP: 0.73,
+    CAD: 1.25,
+    JPY: 110.0,
+    AUD: 1.35,
+  }
+
+  private currencySymbols: Record<string, string> = {
+    USD: "$",
+    EUR: "€",
+    GBP: "£",
+    CAD: "C$",
+    JPY: "¥",
+    AUD: "A$",
+  }
 
   constructor() {
     super("currency_rates")
@@ -34,7 +52,7 @@ export class CurrencyService extends BaseService<ExchangeRate> {
   }
 
   // Get supported currencies from system settings
-  async getSupportedCurrencies(): Promise<string[]> {
+  async getSupportedCurrencies(): Promise<Array<{ code: string; symbol: string; name: string }>> {
     try {
       const query = `
         SELECT setting_value 
@@ -47,10 +65,24 @@ export class CurrencyService extends BaseService<ExchangeRate> {
         return JSON.parse(results[0].setting_value)
       }
 
-      return ["USD", "EUR", "GBP", "CAD", "BAM"] // Default currencies
+      return [
+        { code: "USD", symbol: "$", name: "US Dollar" },
+        { code: "EUR", symbol: "€", name: "Euro" },
+        { code: "GBP", symbol: "£", name: "British Pound" },
+        { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
+        { code: "JPY", symbol: "¥", name: "Japanese Yen" },
+        { code: "AUD", symbol: "A$", name: "Australian Dollar" },
+      ] // Default currencies
     } catch (error) {
       console.error("Error getting supported currencies:", error)
-      return ["USD", "EUR", "GBP", "CAD", "BAM"]
+      return [
+        { code: "USD", symbol: "$", name: "US Dollar" },
+        { code: "EUR", symbol: "€", name: "Euro" },
+        { code: "GBP", symbol: "£", name: "British Pound" },
+        { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
+        { code: "JPY", symbol: "¥", name: "Japanese Yen" },
+        { code: "AUD", symbol: "A$", name: "Australian Dollar" },
+      ]
     }
   }
 
@@ -225,8 +257,8 @@ export class CurrencyService extends BaseService<ExchangeRate> {
 
       // Store rates for all supported currencies
       const storePromises = supportedCurrencies
-        .filter((currency) => currency !== baseCurrency && data.rates[currency])
-        .map((currency) => this.storeRate(baseCurrency, currency, data.rates[currency], today))
+        .filter((currency) => currency.code !== baseCurrency && data.rates[currency.code])
+        .map((currency) => this.storeRate(baseCurrency, currency.code, data.rates[currency.code], today))
 
       await Promise.all(storePromises)
 
@@ -248,34 +280,25 @@ export class CurrencyService extends BaseService<ExchangeRate> {
       }).format(amount)
     } catch (error) {
       // Fallback formatting
-      const symbols: Record<string, string> = {
-        USD: "$",
-        EUR: "€",
-        GBP: "£",
-        CAD: "C$",
-        BAM: "KM",
-      }
-
-      const symbol = symbols[currency] || currency
+      const symbol = this.currencySymbols[currency] || currency
       return `${symbol}${amount.toFixed(2)}`
     }
   }
 
   // Get currency symbol
   getCurrencySymbol(currency: string): string {
-    const symbols: Record<string, string> = {
-      USD: "$",
-      EUR: "€",
-      GBP: "£",
-      CAD: "C$",
-      BAM: "KM",
-      JPY: "¥",
-      CHF: "CHF",
-      AUD: "A$",
-      NZD: "NZ$",
-    }
+    return this.currencySymbols[currency] || currency
+  }
 
-    return symbols[currency] || currency
+  // Update exchange rates (in a real app, this would fetch from an API)
+  async updateExchangeRates(): Promise<void> {
+    try {
+      // In a real application, you would fetch from a currency API
+      // For demo purposes, we'll simulate rate updates
+      console.log("Exchange rates updated (simulated)")
+    } catch (error) {
+      console.error("Error updating exchange rates:", error)
+    }
   }
 }
 

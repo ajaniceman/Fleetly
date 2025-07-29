@@ -1,288 +1,201 @@
-export interface Vehicle {
-  id: string
-  licensePlate: string
-  make: string
-  model: string
-  year: number
-  vin: string
-  status: "active" | "maintenance" | "out-of-service"
-  currentDriver?: string
-  nextServiceDue: string
-  mileage: number
-  fuelType: string
-  purchaseDate: string
-  purchaseCost: number
-  image?: string
-}
-
-export interface Driver {
-  id: string
-  name: string
-  employeeId: string
-  email: string
-  phone: string
-  licenseNumber: string
-  licenseExpiry: string
-  status: "active" | "on-leave" | "suspended"
-  assignedVehicle?: string
-  hireDate: string
-  emergencyContact: {
-    name: string
-    phone: string
-  }
-  avatar?: string
-}
-
-export interface MaintenanceTask {
-  id: string
-  vehicleId: string
-  vehicleLicensePlate: string
-  serviceType: string
-  description: string
-  scheduledDate: string
-  dueDate: string
-  status: "scheduled" | "in-progress" | "completed" | "overdue"
-  assignedMechanic?: string
-  estimatedCost: number
-  actualCost?: number
-  notes?: string
-}
-
-export interface FuelEntry {
-  id: string
-  vehicleId: string
-  vehicleLicensePlate: string
-  driverId: string
-  driverName: string
-  date: string
-  odometerReading: number
-  fuelType: string
-  quantity: number
-  unitCost: number
-  totalCost: number
-  location: string
-  notes?: string
-}
-
-export interface Incident {
-  id: string
-  incidentId: string
-  date: string
-  vehicleId: string
-  vehicleLicensePlate: string
-  driverId: string
-  driverName: string
-  type: "accident" | "breakdown" | "violation" | "other"
-  severity: "low" | "medium" | "high" | "critical"
-  status: "reported" | "investigating" | "resolved" | "closed"
-  description: string
-  location: string
-  reportedBy: string
-  estimatedCost?: number
-  actualCost?: number
-}
-
-// Mock data
-export const mockVehicles: Vehicle[] = [
+// Mock data for development
+export const mockVehicles = [
   {
-    id: "1",
-    licensePlate: "ABC-123",
+    id: 1,
+    license_plate: "ABC-123",
     make: "Toyota",
     model: "Camry",
     year: 2022,
     vin: "1HGBH41JXMN109186",
     status: "active",
-    currentDriver: "1",
-    nextServiceDue: "2024-02-15",
     mileage: 45000,
-    fuelType: "Gasoline",
-    purchaseDate: "2022-01-15",
-    purchaseCost: 28000,
+    fuel_type: "gasoline",
+    driver_id: 1,
+    created_at: new Date("2023-01-15"),
+    updated_at: new Date("2024-01-15"),
   },
   {
-    id: "2",
-    licensePlate: "XYZ-789",
+    id: 2,
+    license_plate: "XYZ-789",
     make: "Ford",
     model: "Transit",
     year: 2021,
     vin: "2FMDK3GC4DBA12345",
     status: "maintenance",
-    nextServiceDue: "2024-01-20",
-    mileage: 62000,
-    fuelType: "Diesel",
-    purchaseDate: "2021-03-10",
-    purchaseCost: 35000,
+    mileage: 67000,
+    fuel_type: "diesel",
+    driver_id: 2,
+    created_at: new Date("2023-02-20"),
+    updated_at: new Date("2024-01-10"),
   },
   {
-    id: "3",
-    licensePlate: "DEF-456",
+    id: 3,
+    license_plate: "DEF-456",
     make: "Chevrolet",
     model: "Silverado",
     year: 2023,
     vin: "1GCUYDED5NZ123456",
     status: "active",
-    currentDriver: "2",
-    nextServiceDue: "2024-03-01",
-    mileage: 28000,
-    fuelType: "Gasoline",
-    purchaseDate: "2023-01-05",
-    purchaseCost: 42000,
+    mileage: 23000,
+    fuel_type: "gasoline",
+    driver_id: 3,
+    created_at: new Date("2023-03-10"),
+    updated_at: new Date("2024-01-12"),
   },
 ]
 
-export const mockDrivers: Driver[] = [
+export const mockDrivers = [
   {
-    id: "1",
+    id: 1,
     name: "John Smith",
-    employeeId: "EMP001",
     email: "john.smith@company.com",
-    phone: "+1-555-0123",
-    licenseNumber: "DL123456789",
-    licenseExpiry: "2025-06-15",
+    phone: "+1-555-0101",
+    license_number: "D123456789",
+    license_expiry: new Date("2025-06-15"),
     status: "active",
-    assignedVehicle: "1",
-    hireDate: "2020-03-15",
-    emergencyContact: {
-      name: "Jane Smith",
-      phone: "+1-555-0124",
-    },
+    hire_date: new Date("2022-01-15"),
+    created_at: new Date("2022-01-15"),
+    updated_at: new Date("2024-01-15"),
   },
   {
-    id: "2",
+    id: 2,
     name: "Sarah Johnson",
-    employeeId: "EMP002",
     email: "sarah.johnson@company.com",
-    phone: "+1-555-0125",
-    licenseNumber: "DL987654321",
-    licenseExpiry: "2024-12-20",
+    phone: "+1-555-0102",
+    license_number: "D987654321",
+    license_expiry: new Date("2024-12-20"),
     status: "active",
-    assignedVehicle: "3",
-    hireDate: "2021-07-10",
-    emergencyContact: {
-      name: "Mike Johnson",
-      phone: "+1-555-0126",
-    },
+    hire_date: new Date("2022-03-20"),
+    created_at: new Date("2022-03-20"),
+    updated_at: new Date("2024-01-10"),
   },
   {
-    id: "3",
-    name: "Robert Davis",
-    employeeId: "EMP003",
-    email: "robert.davis@company.com",
-    phone: "+1-555-0127",
-    licenseNumber: "DL456789123",
-    licenseExpiry: "2024-08-30",
-    status: "on-leave",
-    hireDate: "2019-11-20",
-    emergencyContact: {
-      name: "Lisa Davis",
-      phone: "+1-555-0128",
-    },
+    id: 3,
+    name: "Mike Davis",
+    email: "mike.davis@company.com",
+    phone: "+1-555-0103",
+    license_number: "D456789123",
+    license_expiry: new Date("2025-03-10"),
+    status: "inactive",
+    hire_date: new Date("2021-11-05"),
+    created_at: new Date("2021-11-05"),
+    updated_at: new Date("2024-01-05"),
   },
 ]
 
-export const mockMaintenanceTasks: MaintenanceTask[] = [
+export const mockMaintenanceRecords = [
   {
-    id: "1",
-    vehicleId: "1",
-    vehicleLicensePlate: "ABC-123",
-    serviceType: "Oil Change",
+    id: 1,
+    vehicle_id: 1,
+    service_type: "Oil Change",
     description: "Regular oil change and filter replacement",
-    scheduledDate: "2024-01-15",
-    dueDate: "2024-01-15",
+    scheduled_date: new Date("2024-02-15"),
+    completed_date: new Date("2024-02-15"),
+    cost: 75.0,
+    mileage: 45000,
+    status: "completed",
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date("2024-02-15"),
+  },
+  {
+    id: 2,
+    vehicle_id: 2,
+    service_type: "Brake Inspection",
+    description: "Annual brake system inspection and pad replacement",
+    scheduled_date: new Date("2024-02-20"),
+    completed_date: null,
+    cost: 350.0,
+    mileage: 67000,
     status: "scheduled",
-    assignedMechanic: "Mike Wilson",
-    estimatedCost: 150,
+    created_at: new Date("2024-01-20"),
+    updated_at: new Date("2024-01-20"),
   },
   {
-    id: "2",
-    vehicleId: "2",
-    vehicleLicensePlate: "XYZ-789",
-    serviceType: "Brake Inspection",
-    description: "Complete brake system inspection and pad replacement",
-    scheduledDate: "2024-01-18",
-    dueDate: "2024-01-20",
-    status: "in-progress",
-    assignedMechanic: "Tom Anderson",
-    estimatedCost: 450,
-    actualCost: 420,
-  },
-  {
-    id: "3",
-    vehicleId: "3",
-    vehicleLicensePlate: "DEF-456",
-    serviceType: "Tire Rotation",
+    id: 3,
+    vehicle_id: 3,
+    service_type: "Tire Rotation",
     description: "Rotate tires and check alignment",
-    scheduledDate: "2024-01-25",
-    dueDate: "2024-01-25",
+    scheduled_date: new Date("2024-03-01"),
+    completed_date: null,
+    cost: 120.0,
+    mileage: 23000,
     status: "scheduled",
-    assignedMechanic: "Steve Brown",
-    estimatedCost: 100,
+    created_at: new Date("2024-02-01"),
+    updated_at: new Date("2024-02-01"),
   },
 ]
 
-export const mockFuelEntries: FuelEntry[] = [
+export const mockFuelRecords = [
   {
-    id: "1",
-    vehicleId: "1",
-    vehicleLicensePlate: "ABC-123",
-    driverId: "1",
-    driverName: "John Smith",
-    date: "2024-01-10",
-    odometerReading: 44850,
-    fuelType: "Gasoline",
-    quantity: 45.5,
-    unitCost: 1.45,
-    totalCost: 65.98,
-    location: "Shell Station - Main St",
+    id: 1,
+    vehicle_id: 1,
+    driver_id: 1,
+    fuel_amount: 45.5,
+    cost_per_unit: 3.89,
+    total_cost: 177.0,
+    odometer_reading: 45000,
+    fuel_station: "Shell Station",
+    receipt_number: "R123456",
+    date: new Date("2024-01-15"),
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date("2024-01-15"),
   },
   {
-    id: "2",
-    vehicleId: "3",
-    vehicleLicensePlate: "DEF-456",
-    driverId: "2",
-    driverName: "Sarah Johnson",
-    date: "2024-01-12",
-    odometerReading: 27850,
-    fuelType: "Gasoline",
-    quantity: 52.3,
-    unitCost: 1.42,
-    totalCost: 74.27,
-    location: "BP Station - Highway 101",
+    id: 2,
+    vehicle_id: 2,
+    driver_id: 2,
+    fuel_amount: 62.3,
+    cost_per_unit: 4.12,
+    total_cost: 256.68,
+    odometer_reading: 67000,
+    fuel_station: "BP Station",
+    receipt_number: "R789012",
+    date: new Date("2024-01-18"),
+    created_at: new Date("2024-01-18"),
+    updated_at: new Date("2024-01-18"),
   },
 ]
 
-export const mockIncidents: Incident[] = [
+export const mockIncidents = [
   {
-    id: "1",
-    incidentId: "INC-2024-001",
-    date: "2024-01-08",
-    vehicleId: "1",
-    vehicleLicensePlate: "ABC-123",
-    driverId: "1",
-    driverName: "John Smith",
+    id: 1,
+    incident_id: "INC-2024-001",
+    vehicle_id: 1,
+    driver_id: 1,
     type: "accident",
-    severity: "medium",
-    status: "investigating",
+    severity: "minor",
     description: "Minor fender bender in parking lot",
-    location: "123 Business Park Dr",
-    reportedBy: "John Smith",
-    estimatedCost: 1200,
+    location: "Company Parking Lot",
+    date: new Date("2024-01-20"),
+    status: "resolved",
+    cost: 850.0,
+    created_at: new Date("2024-01-20"),
+    updated_at: new Date("2024-01-25"),
   },
   {
-    id: "2",
-    incidentId: "INC-2024-002",
-    date: "2024-01-05",
-    vehicleId: "2",
-    vehicleLicensePlate: "XYZ-789",
-    driverId: "3",
-    driverName: "Robert Davis",
+    id: 2,
+    incident_id: "INC-2024-002",
+    vehicle_id: 2,
+    driver_id: 2,
     type: "breakdown",
-    severity: "high",
-    status: "resolved",
+    severity: "medium",
     description: "Engine overheating on highway",
-    location: "Highway 95, Mile Marker 45",
-    reportedBy: "Robert Davis",
-    estimatedCost: 800,
-    actualCost: 750,
+    location: "I-95 Mile Marker 45",
+    date: new Date("2024-01-22"),
+    status: "investigating",
+    cost: 1200.0,
+    created_at: new Date("2024-01-22"),
+    updated_at: new Date("2024-01-22"),
   },
 ]
+
+export const dashboardStats = {
+  totalVehicles: mockVehicles.length,
+  activeVehicles: mockVehicles.filter((v) => v.status === "active").length,
+  totalDrivers: mockDrivers.length,
+  activeDrivers: mockDrivers.filter((d) => d.status === "active").length,
+  pendingMaintenance: mockMaintenanceRecords.filter((m) => m.status === "scheduled").length,
+  totalIncidents: mockIncidents.length,
+  monthlyFuelCost: mockFuelRecords.reduce((sum, record) => sum + record.total_cost, 0),
+  averageFuelEfficiency: 28.5, // MPG
+}

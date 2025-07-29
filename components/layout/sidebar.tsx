@@ -1,112 +1,79 @@
 "use client"
+
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Car, Users, Wrench, Fuel, AlertTriangle, TrendingUp, Settings, X, FileText, LogOut } from "lucide-react"
-import { useAuth } from "@/lib/auth"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Car, Users, Wrench, Fuel, AlertTriangle, BarChart3, Settings, Menu, X, Home } from "lucide-react"
 
-const navigationItems = [
-  { name: "Dashboard", icon: TrendingUp, href: "/dashboard" },
-  { name: "Vehicles", icon: Car, href: "/vehicles" },
-  { name: "Drivers", icon: Users, href: "/drivers" },
-  { name: "Maintenance", icon: Wrench, href: "/maintenance" },
-  { name: "Fuel", icon: Fuel, href: "/fuel" },
-  { name: "Incidents", icon: AlertTriangle, href: "/incidents" },
-  { name: "Reports", icon: FileText, href: "/reports" },
-  { name: "Settings", icon: Settings, href: "/settings" },
+const navigation = [
+  { name: "Dashboard", href: "/dashboard", icon: Home },
+  { name: "Vehicles", href: "/vehicles", icon: Car },
+  { name: "Drivers", href: "/drivers", icon: Users },
+  { name: "Maintenance", href: "/maintenance", icon: Wrench },
+  { name: "Fuel", href: "/fuel", icon: Fuel },
+  { name: "Incidents", href: "/incidents", icon: AlertTriangle },
+  { name: "Reports", href: "/reports", icon: BarChart3 },
+  { name: "Settings", href: "/settings", icon: Settings },
 ]
 
 interface SidebarProps {
-  sidebarOpen: boolean
-  setSidebarOpen: (open: boolean) => void
+  className?: string
 }
 
-export function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
+export function Sidebar({ className }: SidebarProps) {
   const pathname = usePathname()
-  const { logout } = useAuth()
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   return (
-    <>
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-          <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white dark:bg-gray-800 shadow-xl">
-            <div className="flex h-16 items-center justify-between px-4">
-              <div className="flex items-center">
-                <Car className="h-8 w-8 text-blue-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">Fleetly</span>
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(false)}>
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-            <nav className="flex-1 space-y-1 px-2 py-4">
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-lg ${
-                    pathname === item.href
-                      ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                  }`}
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                onClick={logout}
-              >
-                <LogOut className="mr-3 h-5 w-5" />
-                Logout
-              </Button>
-            </div>
-          </div>
+    <div className={cn("flex flex-col h-full bg-gray-900 text-white", className)}>
+      <div className="flex items-center justify-between p-4">
+        <div className={cn("flex items-center space-x-2", isCollapsed && "justify-center")}>
+          <Car className="h-8 w-8 text-blue-400" />
+          {!isCollapsed && <span className="text-xl font-bold">Fleetly</span>}
         </div>
-      )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="text-gray-400 hover:text-white"
+        >
+          {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
+        </Button>
+      </div>
 
-      {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-grow bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
-          <div className="flex h-16 items-center px-4">
-            <Car className="h-8 w-8 text-blue-600" />
-            <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">Fleetly</span>
-          </div>
-          <nav className="flex-1 space-y-1 px-2 py-4">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`group flex items-center px-2 py-2 text-sm font-medium rounded-lg ${
-                  pathname === item.href
-                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                }`}
-              >
-                <item.icon className="mr-3 h-5 w-5" />
-                {item.name}
+      <ScrollArea className="flex-1 px-3">
+        <nav className="space-y-2">
+          {navigation.map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link key={item.name} href={item.href}>
+                <Button
+                  variant={isActive ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full justify-start text-left",
+                    isActive
+                      ? "bg-blue-600 text-white hover:bg-blue-700"
+                      : "text-gray-300 hover:text-white hover:bg-gray-800",
+                    isCollapsed && "justify-center px-2",
+                  )}
+                >
+                  <item.icon className={cn("h-4 w-4", !isCollapsed && "mr-2")} />
+                  {!isCollapsed && item.name}
+                </Button>
               </Link>
-            ))}
-          </nav>
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-              onClick={logout}
-            >
-              <LogOut className="mr-3 h-5 w-5" />
-              Logout
-            </Button>
-          </div>
+            )
+          })}
+        </nav>
+      </ScrollArea>
+
+      <div className="p-4 border-t border-gray-800">
+        <div className={cn("text-xs text-gray-400", isCollapsed && "text-center")}>
+          {!isCollapsed && "© 2024 Fleetly"}
         </div>
       </div>
-    </>
+    </div>
   )
 }

@@ -28,7 +28,7 @@ A comprehensive fleet management system built with Next.js, MySQL, and Gmail int
 
 1. **Clone the repository**
    \`\`\`bash
-   git clone https://github.com/ajaniceman/fleetly.git
+   git clone https://github.com/yourusername/fleetly.git
    cd fleetly
    \`\`\`
 

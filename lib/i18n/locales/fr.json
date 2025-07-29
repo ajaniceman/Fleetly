@@ -21,10 +21,15 @@
     "total": "Total",
     "cost": "Coût",
     "quantity": "Quantité",
-    "location": "Emplacement"
+    "location": "Emplacement",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "pending": "En Attente",
+    "completed": "Terminé",
+    "scheduled": "Programmé"
   },
   "navigation": {
-    "dashboard": "Tableau de bord",
+    "dashboard": "Tableau de Bord",
     "vehicles": "Véhicules",
     "drivers": "Conducteurs",
     "maintenance": "Maintenance",
@@ -35,33 +40,22 @@
   },
   "dashboard": {
     "title": "Tableau de Bord",
-    "subtitle": "Bon retour ! Voici ce qui se passe avec votre flotte aujourd'hui.",
+    "welcome": "Bon retour ! Voici ce qui se passe avec votre flotte.",
     "totalVehicles": "Total des Véhicules",
-    "activeDrivers": "Conducteurs Actifs",
-    "inMaintenance": "En Maintenance",
-    "avgFuelEfficiency": "Efficacité Moyenne du Carburant",
-    "upcomingMaintenance": "Maintenance à Venir",
-    "recentActivity": "Activité Récente",
-    "quickActions": "Actions Rapides"
+    "totalDrivers": "Total des Conducteurs",
+    "pendingMaintenance": "Maintenance en Attente",
+    "monthlyFuelCost": "Coût Mensuel du Carburant"
   },
   "vehicles": {
     "title": "Véhicules",
-    "subtitle": "Gérez les véhicules de votre flotte et leurs informations",
+    "subtitle": "Gérez les véhicules de votre flotte",
     "addVehicle": "Ajouter un Véhicule",
     "licensePlate": "Plaque d'Immatriculation",
-    "make": "Marque",
-    "model": "Modèle",
+    "makeModel": "Marque et Modèle",
     "year": "Année",
-    "vin": "VIN",
-    "currentDriver": "Conducteur Actuel",
-    "nextService": "Prochain Service",
+    "status": "Statut",
     "mileage": "Kilométrage",
-    "fuelType": "Type de Carburant",
-    "status": {
-      "active": "Actif",
-      "maintenance": "Maintenance",
-      "outOfService": "Hors Service"
-    }
+    "fuelType": "Type de Carburant"
   },
   "drivers": {
     "title": "Conducteurs",
