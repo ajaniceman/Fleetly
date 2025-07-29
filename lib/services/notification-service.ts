@@ -1,95 +1,133 @@
-import { BaseService } from "./base-service"
-import type { Notification, CreateNotificationData } from "../types"
+"use client"
 
-export class NotificationService extends BaseService<Notification> {
-  constructor() {
-    super("notifications")
+import type { Notification } from "@/lib/types"
+
+export class NotificationService {
+  private static instance: NotificationService
+  private notifications: Notification[] = []
+  private listeners: ((notifications: Notification[]) => void)[] = []
+
+  private constructor() {
+    // Initialize with mock notifications
+    this.notifications = [
+      {
+        id: "1",
+        type: "maintenance",
+        title: "Maintenance Due",
+        message: "Vehicle ABC-123 is due for maintenance",
+        read: false,
+        createdAt: new Date().toISOString(),
+        userId: "current-user",
+      },
+      {
+        id: "2",
+        type: "license_expiry",
+        title: "License Expiry",
+        message: "Driver license for Sarah Johnson expires in 30 days",
+        read: false,
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+        userId: "current-user",
+      },
+    ]
   }
 
-  // Create notification (client-side version - calls API)
-  async createNotification(data: CreateNotificationData): Promise<boolean> {
+  static getInstance(): NotificationService {
+    if (!NotificationService.instance) {
+      NotificationService.instance = new NotificationService()
+    }
+    return NotificationService.instance
+  }
+
+  getNotifications(): Notification[] {
+    return this.notifications
+  }
+
+  getUnreadCount(): number {
+    return this.notifications.filter((n) => !n.read).length
+  }
+
+  markAsRead(id: string): void {
+    this.notifications = this.notifications.map((n) => (n.id === id ? { ...n, read: true } : n))
+    this.notifyListeners()
+  }
+
+  markAllAsRead(): void {
+    this.notifications = this.notifications.map((n) => ({ ...n, read: true }))
+    this.notifyListeners()
+  }
+
+  addNotification(notification: Omit<Notification, "id" | "createdAt">): void {
+    const newNotification: Notification = {
+      ...notification,
+      id: Math.random().toString(36).substr(2, 9),
+      createdAt: new Date().toISOString(),
+    }
+    this.notifications.unshift(newNotification)
+    this.notifyListeners()
+  }
+
+  subscribe(listener: (notifications: Notification[]) => void): () => void {
+    this.listeners.push(listener)
+    return () => {
+      this.listeners = this.listeners.filter((l) => l !== listener)
+    }
+  }
+
+  private notifyListeners(): void {
+    this.listeners.forEach((listener) => listener(this.notifications))
+  }
+
+  // Client-side email notification methods that call API routes
+  async sendMaintenanceReminder(vehicleId: string, dueDate: string): Promise<void> {
     try {
-      const response = await fetch("/api/notifications", {
+      const response = await fetch("/api/email/maintenance-reminder", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vehicleId, dueDate }),
       })
 
-      const result = await response.json()
-      return result.success || false
+      if (!response.ok) {
+        throw new Error("Failed to send maintenance reminder")
+      }
     } catch (error) {
-      console.error("Error creating notification:", error)
-      return false
+      console.error("Error sending maintenance reminder:", error)
+      throw error
     }
   }
 
-  // Get unread notifications for user (client-side version)
-  async getUnreadNotifications(userId: number): Promise<Notification[]> {
+  async sendLicenseExpiryAlert(driverId: string, expiryDate: string): Promise<void> {
     try {
-      const response = await fetch(`/api/notifications/unread?userId=${userId}`)
-      const result = await response.json()
-      return result.notifications || []
-    } catch (error) {
-      console.error("Error getting unread notifications:", error)
-      return []
-    }
-  }
-
-  // Get notification count for user (client-side version)
-  async getNotificationCount(userId: number): Promise<number> {
-    try {
-      const response = await fetch(`/api/notifications/count?userId=${userId}`)
-      const result = await response.json()
-      return result.count || 0
-    } catch (error) {
-      console.error("Error getting notification count:", error)
-      return 0
-    }
-  }
-
-  // Mark notification as read (client-side version)
-  async markAsRead(notificationId: number, userId: number): Promise<void> {
-    try {
-      await fetch(`/api/notifications/${notificationId}/read`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId }),
+      const response = await fetch("/api/email/license-expiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ driverId, expiryDate }),
       })
+
+      if (!response.ok) {
+        throw new Error("Failed to send license expiry alert")
+      }
     } catch (error) {
-      console.error("Error marking notification as read:", error)
+      console.error("Error sending license expiry alert:", error)
+      throw error
     }
   }
 
-  // Mark all notifications as read for user (client-side version)
-  async markAllAsRead(userId: number): Promise<void> {
+  async sendWelcomeEmail(userEmail: string, userName: string): Promise<void> {
     try {
-      await fetch("/api/notifications/mark-all-read", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId }),
+      const response = await fetch("/api/email/welcome", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userEmail, userName }),
       })
+
+      if (!response.ok) {
+        throw new Error("Failed to send welcome email")
+      }
     } catch (error) {
-      console.error("Error marking all notifications as read:", error)
+      console.error("Error sending welcome email:", error)
+      throw error
     }
-  }
-
-  // Mock real-time listener for client-side
-  onSnapshot(callback: (notifications: Notification[]) => void, userId: number) {
-    // Simulate real-time updates with polling
-    const interval = setInterval(async () => {
-      const notifications = await this.getUnreadNotifications(userId)
-      callback(notifications)
-    }, 5000) // Poll every 5 seconds
-
-    // Return cleanup function
-    return () => clearInterval(interval)
   }
 }
 
-export const notificationService = new NotificationService()
+export const notificationService = NotificationService.getInstance()

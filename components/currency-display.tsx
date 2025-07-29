@@ -1,74 +1,44 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { currencyService } from "@/lib/services/currency-service"
-import { Skeleton } from "@/components/ui/skeleton"
-import { AlertCircle } from "lucide-react"
 
 interface CurrencyDisplayProps {
   amount: number
-  currency?: string
+  fromCurrency?: string
+  toCurrency: string
   className?: string
 }
 
-export function CurrencyDisplay({ amount, currency = "USD", className = "" }: CurrencyDisplayProps) {
-  const [displayCurrency, setDisplayCurrency] = useState(currency)
-  const [convertedAmount, setConvertedAmount] = useState<number | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    // Listen for currency changes
-    const handleCurrencyChange = (event: CustomEvent) => {
-      setDisplayCurrency(event.detail.currency)
-    }
-
-    window.addEventListener("currencyChanged", handleCurrencyChange as EventListener)
-    return () => {
-      window.removeEventListener("currencyChanged", handleCurrencyChange as EventListener)
-    }
-  }, [])
+export function CurrencyDisplay({ amount, fromCurrency = "USD", toCurrency, className }: CurrencyDisplayProps) {
+  const [convertedAmount, setConvertedAmount] = useState<number>(amount)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const convertAmount = async () => {
-      if (currency === displayCurrency) {
+      if (fromCurrency === toCurrency) {
         setConvertedAmount(amount)
-        setIsLoading(false)
         return
       }
 
-      setIsLoading(true)
-      setError(null)
-
+      setLoading(true)
       try {
-        const result = await currencyService.convertCurrency(amount, currency, displayCurrency)
-        setConvertedAmount(result.convertedAmount)
+        const converted = await currencyService.convertCurrency(amount, fromCurrency, toCurrency)
+        setConvertedAmount(converted)
       } catch (error) {
-        console.error("Currency conversion error:", error)
-        setError("Conversion failed")
-        setConvertedAmount(amount) // Fallback to original amount
+        console.error("Currency conversion failed:", error)
+        setConvertedAmount(amount)
       } finally {
-        setIsLoading(false)
+        setLoading(false)
       }
     }
 
     convertAmount()
-  }, [amount, currency, displayCurrency])
+  }, [amount, fromCurrency, toCurrency])
 
-  if (isLoading) {
-    return <Skeleton className={`h-4 w-16 ${className}`} />
+  if (loading) {
+    return <span className={className}>Converting...</span>
   }
 
-  if (error) {
-    return (
-      <span className={`text-muted-foreground flex items-center ${className}`}>
-        <AlertCircle className="h-3 w-3 mr-1" />
-        {currencyService.formatCurrency(amount, currency)}
-      </span>
-    )
-  }
-
-  const formattedAmount = currencyService.formatCurrency(convertedAmount || amount, displayCurrency)
-
-  return <span className={className}>{formattedAmount}</span>
+  return <span className={className}>{currencyService.formatCurrency(convertedAmount, toCurrency)}</span>
 }

@@ -5,11 +5,15 @@ export async function POST(request: NextRequest) {
   try {
     const { to } = await request.json()
 
-    const success = await serverEmailService.sendTestEmail(to)
+    if (!to) {
+      return NextResponse.json({ error: "Recipient email is required" }, { status: 400 })
+    }
 
-    return NextResponse.json({ success })
+    await serverEmailService.sendTestEmail(to)
+
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Test email API error:", error)
-    return NextResponse.json({ success: false, error: "Failed to send email" }, { status: 500 })
+    console.error("Error sending test email:", error)
+    return NextResponse.json({ error: "Failed to send test email" }, { status: 500 })
   }
 }

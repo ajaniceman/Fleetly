@@ -1,103 +1,77 @@
 import { BaseService } from "./base-service"
-import { executeQuery } from "../database/connection"
-import type { User } from "../types"
 import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
+import type { User } from "@/lib/types"
 
-export class UserService extends BaseService<User> {
+export class UserService extends BaseService {
   constructor() {
     super("users")
   }
 
-  // Authenticate user
-  async authenticate(email: string, password: string): Promise<User | null> {
-    try {
-      const query = `SELECT * FROM users WHERE email = ? AND is_active = TRUE`
-      const users = await executeQuery<User & { password_hash: string }>(query, [email])
+  async authenticate(email: string, password: string): Promise<{ user: User; token: string } | null> {
+    const query = "SELECT * FROM users WHERE email = ? AND is_active = TRUE"
+    const results = (await this.executeQuery(query, [email])) as User[]
 
-      if (users.length === 0) {
-        return null
-      }
+    if (results.length === 0) {
+      return null
+    }
 
-      const user = users[0]
-      const isValidPassword = await bcrypt.compare(password, user.password_hash)
+    const user = results[0]
+    const isValidPassword = await bcrypt.compare(password, user.password_hash)
 
-      if (!isValidPassword) {
-        return null
-      }
+    if (!isValidPassword) {
+      return null
+    }
 
-      // Remove password hash from returned user object
-      const { password_hash, ...userWithoutPassword } = user
-      return userWithoutPassword as User
-    } catch (error) {
-      console.error("Error authenticating user:", error)
-      throw error
+    // Update last login
+    await this.update(user.id, { last_login: new Date() })
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET || "fallback-secret",
+      { expiresIn: process.env.JWT_EXPIRES_IN || "24h" },
+    )
+
+    // Remove password hash from response
+    const { password_hash, ...userWithoutPassword } = user
+
+    return {
+      user: userWithoutPassword as User,
+      token,
     }
   }
 
-  // Create user with hashed password
   async createUser(userData: {
-    name: string
     email: string
     password: string
+    name: string
     role?: "admin" | "manager" | "driver"
-  }): Promise<User> {
-    try {
-      const hashedPassword = await bcrypt.hash(userData.password, 10)
+  }): Promise<string> {
+    const hashedPassword = await bcrypt.hash(userData.password, 10)
 
-      const { password, ...userDataWithoutPassword } = userData
-      const userToCreate = {
-        ...userDataWithoutPassword,
-        password_hash: hashedPassword,
-      }
-
-      return await this.create(userToCreate as any)
-    } catch (error) {
-      console.error("Error creating user:", error)
-      throw error
-    }
+    return await this.create({
+      email: userData.email,
+      password_hash: hashedPassword,
+      name: userData.name,
+      role: userData.role || "driver",
+    })
   }
 
-  // Update user password
-  async updatePassword(userId: number, newPassword: string): Promise<boolean> {
-    try {
-      const hashedPassword = await bcrypt.hash(newPassword, 10)
-      const query = `UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`
-      await executeQuery(query, [hashedPassword, userId])
-      return true
-    } catch (error) {
-      console.error("Error updating user password:", error)
-      throw error
-    }
+  async updatePassword(userId: string, newPassword: string): Promise<void> {
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+    await this.update(userId, { password_hash: hashedPassword })
   }
 
-  // Get users by role
-  async getUsersByRole(role: "admin" | "manager" | "driver"): Promise<User[]> {
-    try {
-      const query = `SELECT id, name, email, role, is_active, created_at, updated_at FROM users WHERE role = ? AND is_active = TRUE ORDER BY name`
-      return await executeQuery<User>(query, [role])
-    } catch (error) {
-      console.error("Error getting users by role:", error)
-      throw error
-    }
+  async findByEmail(email: string): Promise<User | null> {
+    const query = "SELECT * FROM users WHERE email = ?"
+    const results = (await this.executeQuery(query, [email])) as User[]
+    return results.length > 0 ? results[0] : null
   }
 
-  // Update user preferences
-  async updatePreferences(
-    userId: number,
-    preferences: {
-      language_preference?: string
-      currency_preference?: string
-      email_notifications?: boolean
-      maintenance_alerts?: boolean
-      incident_alerts?: boolean
-    },
-  ): Promise<User | null> {
-    try {
-      return await this.update(userId, preferences as any)
-    } catch (error) {
-      console.error("Error updating user preferences:", error)
-      throw error
-    }
+  private async executeQuery(query: string, params: any[] = []) {
+    const { executeQuery } = await import("@/lib/database/connection")
+    return executeQuery(query, params)
   }
 }
 

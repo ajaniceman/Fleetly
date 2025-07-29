@@ -1,21 +1,12 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Car, Users, Wrench, BarChart3, Shield, Globe } from "lucide-react"
 
 export default function HomePage() {
-  const router = useRouter()
-
-  useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem("auth_token")
-    if (token) {
-      router.push("/dashboard")
-    }
-  }, [router])
+  redirect("/login")
 
   const features = [
     {
@@ -65,7 +56,7 @@ export default function HomePage() {
               <Car className="h-8 w-8 text-blue-600" />
               <span className="text-2xl font-bold text-gray-900">Fleetly</span>
             </div>
-            <Button onClick={() => router.push("/login")}>Get Started</Button>
+            <Button onClick={() => redirect("/login")}>Get Started</Button>
           </div>
         </div>
       </header>
@@ -82,7 +73,7 @@ export default function HomePage() {
             schedule maintenance, and generate insights to optimize your fleet performance.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={() => router.push("/login")}>
+            <Button size="lg" onClick={() => redirect("/login")}>
               Start Free Trial
             </Button>
             <Button variant="outline" size="lg">
@@ -156,7 +147,7 @@ export default function HomePage() {
           <p className="text-xl text-gray-600 mb-8">
             Join thousands of companies that trust Fleetly to manage their fleet operations efficiently.
           </p>
-          <Button size="lg" onClick={() => router.push("/login")}>
+          <Button size="lg" onClick={() => redirect("/login")}>
             Get Started Today
           </Button>
         </div>

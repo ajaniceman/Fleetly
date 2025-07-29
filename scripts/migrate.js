@@ -1,62 +1,65 @@
 const mysql = require("mysql2/promise")
+const fs = require("fs")
+const path = require("path")
 require("dotenv").config({ path: ".env.local" })
 
-async function runMigration() {
-  console.log("🚀 Starting database migration...\n")
+async function runMigrations() {
+  console.log("🚀 Starting database migration...")
 
-  const connection = await mysql.createConnection({
+  const config = {
     host: process.env.DB_HOST || "localhost",
-    port: process.env.DB_PORT || 3306,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  })
+    port: Number.parseInt(process.env.DB_PORT || "3306"),
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "fleetly",
+    multipleStatements: true,
+  }
+
+  let connection
 
   try {
+    // Connect to MySQL
+    connection = await mysql.createConnection(config)
     console.log("✅ Connected to MySQL database")
 
     // Read and execute schema
-    const fs = require("fs")
-    const path = require("path")
     const schemaPath = path.join(__dirname, "..", "database", "schema.sql")
 
     if (!fs.existsSync(schemaPath)) {
-      console.error("❌ Schema file not found at:", schemaPath)
-      return
+      throw new Error(`Schema file not found: ${schemaPath}`)
     }
 
     const schema = fs.readFileSync(schemaPath, "utf8")
-    const statements = schema.split(";").filter((stmt) => stmt.trim().length > 0)
+    console.log("📄 Executing database schema...")
 
-    console.log(`📝 Executing ${statements.length} SQL statements...\n`)
+    await connection.execute(schema)
+    console.log("✅ Database schema executed successfully")
 
-    for (let i = 0; i < statements.length; i++) {
-      const statement = statements[i].trim()
-      if (statement) {
-        try {
-          await connection.execute(statement)
-          console.log(`✅ Statement ${i + 1}/${statements.length} executed successfully`)
-        } catch (error) {
-          if (error.code === "ER_TABLE_EXISTS_ERROR") {
-            console.log(`⚠️  Statement ${i + 1}/${statements.length} - Table already exists, skipping`)
-          } else {
-            console.error(`❌ Statement ${i + 1}/${statements.length} failed:`, error.message)
-          }
-        }
-      }
-    }
+    // Verify tables were created
+    const [tables] = await connection.execute("SHOW TABLES")
+    console.log(
+      "📊 Created tables:",
+      tables.map((row) => Object.values(row)[0]),
+    )
 
-    console.log("\n🎉 Database migration completed successfully!")
-    console.log("Your Fleetly database is ready to use.")
+    console.log("🎉 Migration completed successfully!")
   } catch (error) {
     console.error("❌ Migration failed:", error.message)
-    console.log("\n🔧 Troubleshooting tips:")
-    console.log("1. Make sure MySQL is running")
-    console.log("2. Check your database credentials in .env.local")
-    console.log("3. Ensure the database exists and user has proper permissions")
+
+    if (error.code === "ER_ACCESS_DENIED_ERROR") {
+      console.log("\n💡 Database connection failed. Please check:")
+      console.log("1. Database credentials in .env.local")
+      console.log("2. MySQL server is running")
+      console.log("3. Database exists and user has proper permissions")
+    }
+
+    process.exit(1)
   } finally {
-    await connection.end()
+    if (connection) {
+      await connection.end()
+      console.log("🔌 Database connection closed")
+    }
   }
 }
 
-runMigration()
+runMigrations()

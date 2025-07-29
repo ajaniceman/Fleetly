@@ -44,7 +44,9 @@
     "totalVehicles": "Total des Véhicules",
     "totalDrivers": "Total des Conducteurs",
     "pendingMaintenance": "Maintenance en Attente",
-    "monthlyFuelCost": "Coût Mensuel du Carburant"
+    "monthlyFuelCost": "Coût Mensuel du Carburant",
+    "recent_activity": "Activité Récente",
+    "quick_actions": "Actions Rapides"
   },
   "vehicles": {
     "title": "Véhicules",
@@ -70,7 +72,8 @@
       "active": "Actif",
       "onLeave": "En Congé",
       "suspended": "Suspendu"
-    }
+    },
+    "active_drivers": "Conducteurs Actifs"
   },
   "maintenance": {
     "title": "Maintenance",
@@ -87,7 +90,8 @@
       "inProgress": "En Cours",
       "completed": "Terminé",
       "overdue": "En Retard"
-    }
+    },
+    "maintenance_due": "Maintenance Due"
   },
   "fuel": {
     "title": "Gestion du Carburant",
@@ -97,7 +101,8 @@
     "unitCost": "Coût Unitaire",
     "totalCost": "Coût Total",
     "fuelConsumption": "Consommation de Carburant",
-    "fuelEfficiency": "Efficacité du Carburant"
+    "fuelEfficiency": "Efficacité du Carburant",
+    "add_fuel_record": "Ajouter un Enregistrement de Carburant"
   },
   "incidents": {
     "title": "Incidents",
@@ -132,7 +137,8 @@
     "fleetUtilization": "Utilisation de la Flotte",
     "maintenanceCosts": "Coûts de Maintenance",
     "driverPerformance": "Performance du Conducteur",
-    "fuelEfficiency": "Efficacité du Carburant"
+    "fuelEfficiency": "Efficacité du Carburant",
+    "generate_report": "Générer un Rapport"
   },
   "settings": {
     "title": "Paramètres",
@@ -148,7 +154,9 @@
     "timezone": "Fuseau Horaire",
     "language": "Langue",
     "theme": "Thème",
-    "currency": "Devise"
+    "currency": "Devise",
+    "contact_email": "Email de Contact",
+    "address": "Adresse"
   },
   "auth": {
     "login": "Se Connecter",
@@ -170,6 +178,9 @@
     "licenseExpiry": "Expiration du Permis",
     "documentExpiry": "Expiration du Document",
     "incidentAlert": "Alerte d'Incident",
-    "systemAlert": "Alerte Système"
+    "systemAlert": "Alerte Système",
+    "maintenance_reminders": "Rappels de Maintenance",
+    "license_expiry_alerts": "Alertes d'Expiration de Licence",
+    "fuel_efficiency_alerts": "Alertes d'Efficacité du Carburant"
   }
 }

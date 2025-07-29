@@ -2,17 +2,7 @@
 const nextConfig = {
   output: "standalone",
   experimental: {
-    serverComponentsExternalPackages: ["mysql2", "nodemailer"],
-  },
-  images: {
-    domains: ["localhost"],
-    unoptimized: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
+    serverComponentsExternalPackages: ["nodemailer", "mysql2"],
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -21,10 +11,28 @@ const nextConfig = {
         fs: false,
         net: false,
         tls: false,
-        dns: false,
+        crypto: false,
+        stream: false,
+        url: false,
+        zlib: false,
+        http: false,
+        https: false,
+        assert: false,
+        os: false,
+        path: false,
+        child_process: false,
       }
     }
     return config
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  images: {
+    unoptimized: true,
   },
 }
 

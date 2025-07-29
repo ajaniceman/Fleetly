@@ -44,7 +44,9 @@
     "totalVehicles": "Gesamte Fahrzeuge",
     "totalDrivers": "Gesamte Fahrer",
     "pendingMaintenance": "Ausstehende Wartung",
-    "monthlyFuelCost": "Monatliche Kraftstoffkosten"
+    "monthlyFuelCost": "Monatliche Kraftstoffkosten",
+    "recent_activity": "Letzte Aktivität",
+    "quick_actions": "Schnellaktionen"
   },
   "vehicles": {
     "title": "Fahrzeuge",
@@ -70,7 +72,8 @@
       "active": "Aktiv",
       "onLeave": "Im Urlaub",
       "suspended": "Suspendiert"
-    }
+    },
+    "active_drivers": "Aktive Fahrer"
   },
   "maintenance": {
     "title": "Wartung",
@@ -87,7 +90,8 @@
       "inProgress": "In Bearbeitung",
       "completed": "Abgeschlossen",
       "overdue": "Überfällig"
-    }
+    },
+    "maintenance_due": "Wartung Fällig"
   },
   "fuel": {
     "title": "Kraftstoffverwaltung",
@@ -97,7 +101,8 @@
     "unitCost": "Stückkosten",
     "totalCost": "Gesamtkosten",
     "fuelConsumption": "Kraftstoffverbrauch",
-    "fuelEfficiency": "Kraftstoffeffizienz"
+    "fuelEfficiency": "Kraftstoffeffizienz",
+    "fuel_efficiency": "Kraftstoffeffizienz"
   },
   "incidents": {
     "title": "Vorfälle",
@@ -132,7 +137,8 @@
     "fleetUtilization": "Flottenauslastung",
     "maintenanceCosts": "Wartungskosten",
     "driverPerformance": "Fahrerleistung",
-    "fuelEfficiency": "Kraftstoffeffizienz"
+    "fuelEfficiency": "Kraftstoffeffizienz",
+    "generate_report": "Bericht Erstellen"
   },
   "settings": {
     "title": "Einstellungen",
@@ -148,7 +154,8 @@
     "timezone": "Zeitzone",
     "language": "Sprache",
     "theme": "Design",
-    "currency": "Währung"
+    "currency": "Währung",
+    "contact_email": "Kontakt-E-Mail"
   },
   "auth": {
     "login": "Anmelden",
@@ -170,6 +177,9 @@
     "licenseExpiry": "Führerschein Ablauf",
     "documentExpiry": "Dokument Ablauf",
     "incidentAlert": "Vorfall Warnung",
-    "systemAlert": "System Warnung"
+    "systemAlert": "System Warnung",
+    "maintenance_reminders": "Wartungserinnerungen",
+    "license_expiry_alerts": "Führerschein-Ablauf-Warnungen",
+    "fuel_efficiency_alerts": "Kraftstoffeffizienz-Warnungen"
   }
 }

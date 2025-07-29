@@ -1,27 +1,6 @@
 import nodemailer from "nodemailer"
 
-interface EmailOptions {
-  to: string
-  subject: string
-  html: string
-  text?: string
-}
-
-interface MaintenanceReminder {
-  vehiclePlate: string
-  maintenanceType: string
-  dueDate: string
-  daysUntilDue: number
-}
-
-interface LicenseExpiry {
-  driverName: string
-  licenseType: string
-  expiryDate: string
-  daysUntilExpiry: number
-}
-
-class ServerEmailService {
+export class ServerEmailService {
   private transporter: nodemailer.Transporter
 
   constructor() {
@@ -34,272 +13,119 @@ class ServerEmailService {
     })
   }
 
-  private async sendEmail(options: EmailOptions): Promise<boolean> {
-    try {
-      if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-        console.warn("Gmail credentials not configured, skipping email send")
-        console.log("📧 Email would be sent:", {
-          to: options.to,
-          subject: options.subject,
-          preview: options.text?.substring(0, 100) + "..." || "No text content",
-        })
-        return true // Return true for development
-      }
-
-      const mailOptions = {
-        from: `${process.env.FROM_NAME || "Fleetly System"} <${process.env.GMAIL_USER}>`,
-        to: options.to,
-        subject: options.subject,
-        html: options.html,
-        text: options.text,
-      }
-
-      const result = await this.transporter.sendMail(mailOptions)
-      console.log("✅ Email sent successfully:", result.messageId)
-      return true
-    } catch (error) {
-      console.error("❌ Failed to send email:", error)
-      return false
+  async sendMaintenanceReminder(vehicleId: string, dueDate: string): Promise<void> {
+    const mailOptions = {
+      from: `"${process.env.FROM_NAME || "Fleetly System"}" <${process.env.GMAIL_USER}>`,
+      to: process.env.GMAIL_USER, // In production, get manager email from database
+      subject: "Vehicle Maintenance Reminder",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Maintenance Reminder</h2>
+          <p>This is a reminder that vehicle <strong>${vehicleId}</strong> is due for maintenance.</p>
+          <p><strong>Due Date:</strong> ${dueDate}</p>
+          <p>Please schedule the maintenance as soon as possible to ensure vehicle safety and compliance.</p>
+          <hr style="margin: 20px 0;">
+          <p style="color: #666; font-size: 12px;">
+            This is an automated message from the Fleetly Fleet Management System.
+          </p>
+        </div>
+      `,
     }
+
+    await this.transporter.sendMail(mailOptions)
   }
 
-  async sendMaintenanceReminder(to: string, data: MaintenanceReminder): Promise<boolean> {
-    const subject = `🔧 Maintenance Reminder: ${data.vehiclePlate}`
-
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Maintenance Reminder</title>
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
-            .container { max-width: 600px; margin: 0 auto; background: white; }
-            .header { background: #3b82f6; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #f8fafc; padding: 30px; border-radius: 0 0 8px 8px; }
-            .alert { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px; }
-            .button { display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-            .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
-            .logo { font-size: 24px; font-weight: bold; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <div class="logo">🚗 Fleetly</div>
-              <h1>🔧 Maintenance Reminder</h1>
-            </div>
-            <div class="content">
-              <h2>Vehicle: ${data.vehiclePlate}</h2>
-              <div class="alert">
-                <strong>⚠️ Maintenance Due Soon!</strong><br>
-                ${data.maintenanceType} is due in ${data.daysUntilDue} days (${data.dueDate})
-              </div>
-              <p>Please schedule the maintenance to ensure vehicle safety and compliance.</p>
-              <a href="${process.env.NEXT_PUBLIC_APP_URL}/maintenance" class="button">View Maintenance Schedule</a>
-            </div>
-            <div class="footer">
-              <p>This is an automated message from Fleetly Fleet Management System</p>
-              <p>© ${new Date().getFullYear()} Fleetly. All rights reserved.</p>
-            </div>
-          </div>
-        </body>
-      </html>
-    `
-
-    const text = `Maintenance Reminder: ${data.vehiclePlate}\n\n${data.maintenanceType} is due in ${data.daysUntilDue} days (${data.dueDate})\n\nPlease schedule the maintenance to ensure vehicle safety and compliance.\n\nView details: ${process.env.NEXT_PUBLIC_APP_URL}/maintenance`
-
-    return this.sendEmail({ to, subject, html, text })
-  }
-
-  async sendLicenseExpiryAlert(to: string, data: LicenseExpiry): Promise<boolean> {
-    const subject = `⚠️ License Expiry Alert: ${data.driverName}`
-
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>License Expiry Alert</title>
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
-            .container { max-width: 600px; margin: 0 auto; background: white; }
-            .header { background: #dc2626; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #f8fafc; padding: 30px; border-radius: 0 0 8px 8px; }
-            .alert { background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0; border-radius: 4px; }
-            .button { display: inline-block; background: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-            .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
-            .logo { font-size: 24px; font-weight: bold; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <div class="logo">🚗 Fleetly</div>
-              <h1>⚠️ License Expiry Alert</h1>
-            </div>
-            <div class="content">
-              <h2>Driver: ${data.driverName}</h2>
-              <div class="alert">
-                <strong>🚨 License Expiring Soon!</strong><br>
-                ${data.licenseType} expires in ${data.daysUntilExpiry} days (${data.expiryDate})
-              </div>
-              <p>Please ensure the license is renewed before expiry to maintain compliance.</p>
-              <a href="${process.env.NEXT_PUBLIC_APP_URL}/drivers" class="button">View Driver Details</a>
-            </div>
-            <div class="footer">
-              <p>This is an automated message from Fleetly Fleet Management System</p>
-              <p>© ${new Date().getFullYear()} Fleetly. All rights reserved.</p>
-            </div>
-          </div>
-        </body>
-      </html>
-    `
-
-    const text = `License Expiry Alert: ${data.driverName}\n\n${data.licenseType} expires in ${data.daysUntilExpiry} days (${data.expiryDate})\n\nPlease ensure the license is renewed before expiry to maintain compliance.\n\nView details: ${process.env.NEXT_PUBLIC_APP_URL}/drivers`
-
-    return this.sendEmail({ to, subject, html, text })
-  }
-
-  async sendWelcomeEmail(to: string, userName: string, tempPassword?: string): Promise<boolean> {
-    const subject = `👋 Welcome to Fleetly Fleet Management`
-
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Welcome to Fleetly</title>
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
-            .container { max-width: 600px; margin: 0 auto; background: white; }
-            .header { background: #059669; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #f8fafc; padding: 30px; border-radius: 0 0 8px 8px; }
-            .credentials { background: #e0f2fe; border: 1px solid #0284c7; padding: 15px; margin: 20px 0; border-radius: 6px; }
-            .button { display: inline-block; background: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
-            .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
-            .logo { font-size: 24px; font-weight: bold; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <div class="logo">🚗 Fleetly</div>
-              <h1>👋 Welcome to Fleetly</h1>
-            </div>
-            <div class="content">
-              <h2>Hello ${userName}!</h2>
-              <p>Welcome to Fleetly Fleet Management System. Your account has been created successfully.</p>
-              
-              ${
-                tempPassword
-                  ? `
-                <div class="credentials">
-                  <strong>🔐 Your Login Credentials:</strong><br>
-                  Email: ${to}<br>
-                  Temporary Password: ${tempPassword}<br>
-                  <em>Please change your password after first login.</em>
-                </div>
-              `
-                  : ""
-              }
-              
-              <p>With Fleetly, you can:</p>
-              <ul>
-                <li>🚗 Manage your vehicle fleet</li>
-                <li>👥 Track driver information</li>
-                <li>🔧 Schedule maintenance</li>
-                <li>⛽ Monitor fuel consumption</li>
-                <li>📊 Generate detailed reports</li>
-              </ul>
-              
-              <a href="${process.env.NEXT_PUBLIC_APP_URL}/login" class="button">Login to Fleetly</a>
-            </div>
-            <div class="footer">
-              <p>If you have any questions, please contact our support team.</p>
-              <p>© ${new Date().getFullYear()} Fleetly. All rights reserved.</p>
-            </div>
-          </div>
-        </body>
-      </html>
-    `
-
-    const text = `Welcome to Fleetly Fleet Management!\n\nHello ${userName}!\n\nYour account has been created successfully.\n\n${tempPassword ? `Login Credentials:\nEmail: ${to}\nTemporary Password: ${tempPassword}\nPlease change your password after first login.\n\n` : ""}Visit ${process.env.NEXT_PUBLIC_APP_URL}/login to get started.`
-
-    return this.sendEmail({ to, subject, html, text })
-  }
-
-  async sendTestEmail(to: string): Promise<boolean> {
-    const subject = `✅ Fleetly Email Test - ${new Date().toLocaleString()}`
-
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Email Test</title>
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
-            .container { max-width: 600px; margin: 0 auto; background: white; }
-            .header { background: #10b981; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #f8fafc; padding: 30px; border-radius: 0 0 8px 8px; }
-            .success { background: #d1fae5; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0; border-radius: 4px; }
-            .footer { text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px; }
-            .logo { font-size: 24px; font-weight: bold; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <div class="logo">🚗 Fleetly</div>
-              <h1>✅ Email Configuration Test</h1>
-            </div>
-            <div class="content">
-              <div class="success">
-                <strong>🎉 Success!</strong><br>
-                Your Gmail SMTP configuration is working correctly.
-              </div>
-              <p><strong>Test Details:</strong></p>
-              <ul>
-                <li>📧 From: ${process.env.GMAIL_USER}</li>
-                <li>📬 To: ${to}</li>
-                <li>⏰ Time: ${new Date().toLocaleString()}</li>
-                <li>🌐 App URL: ${process.env.NEXT_PUBLIC_APP_URL}</li>
-              </ul>
-              <p>Your Fleetly system is ready to send automated notifications!</p>
-            </div>
-            <div class="footer">
-              <p>This is a test message from Fleetly Fleet Management System</p>
-              <p>© ${new Date().getFullYear()} Fleetly. All rights reserved.</p>
-            </div>
-          </div>
-        </body>
-      </html>
-    `
-
-    const text = `Email Configuration Test\n\nSuccess! Your Gmail SMTP configuration is working correctly.\n\nTest Details:\nFrom: ${process.env.GMAIL_USER}\nTo: ${to}\nTime: ${new Date().toLocaleString()}\nApp URL: ${process.env.NEXT_PUBLIC_APP_URL}\n\nYour Fleetly system is ready to send automated notifications!`
-
-    return this.sendEmail({ to, subject, html, text })
-  }
-
-  async verifyConnection(): Promise<boolean> {
-    try {
-      if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-        console.warn("Gmail credentials not configured")
-        return false
-      }
-
-      await this.transporter.verify()
-      console.log("✅ Gmail SMTP connection verified successfully")
-      return true
-    } catch (error) {
-      console.error("❌ Gmail SMTP connection failed:", error)
-      return false
+  async sendLicenseExpiryAlert(driverId: string, expiryDate: string): Promise<void> {
+    const mailOptions = {
+      from: `"${process.env.FROM_NAME || "Fleetly System"}" <${process.env.GMAIL_USER}>`,
+      to: process.env.GMAIL_USER, // In production, get HR email from database
+      subject: "Driver License Expiry Alert",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">License Expiry Alert</h2>
+          <p>This is an alert that the driver license for <strong>${driverId}</strong> is expiring soon.</p>
+          <p><strong>Expiry Date:</strong> ${expiryDate}</p>
+          <p>Please ensure the driver renews their license before the expiry date to maintain compliance.</p>
+          <hr style="margin: 20px 0;">
+          <p style="color: #666; font-size: 12px;">
+            This is an automated message from the Fleetly Fleet Management System.
+          </p>
+        </div>
+      `,
     }
+
+    await this.transporter.sendMail(mailOptions)
+  }
+
+  async sendWelcomeEmail(userEmail: string, userName: string): Promise<void> {
+    const mailOptions = {
+      from: `"${process.env.FROM_NAME || "Fleetly System"}" <${process.env.GMAIL_USER}>`,
+      to: userEmail,
+      subject: "Welcome to Fleetly Fleet Management System",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Welcome to Fleetly!</h2>
+          <p>Hello <strong>${userName}</strong>,</p>
+          <p>Welcome to the Fleetly Fleet Management System. Your account has been successfully created.</p>
+          <p>You can now access the system to manage vehicles, drivers, maintenance, and more.</p>
+          <p><a href="${process.env.APP_URL || "http://localhost:3000"}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Access Fleetly</a></p>
+          <hr style="margin: 20px 0;">
+          <p style="color: #666; font-size: 12px;">
+            If you have any questions, please contact our support team.
+          </p>
+        </div>
+      `,
+    }
+
+    await this.transporter.sendMail(mailOptions)
+  }
+
+  async sendTestEmail(to: string): Promise<void> {
+    const mailOptions = {
+      from: `"${process.env.FROM_NAME || "Fleetly System"}" <${process.env.GMAIL_USER}>`,
+      to: to,
+      subject: "Fleetly Email Test",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Email Test Successful!</h2>
+          <p>This is a test email from the Fleetly Fleet Management System.</p>
+          <p>If you received this email, the email configuration is working correctly.</p>
+          <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+          <hr style="margin: 20px 0;">
+          <p style="color: #666; font-size: 12px;">
+            This is a test message from the Fleetly Fleet Management System.
+          </p>
+        </div>
+      `,
+    }
+
+    await this.transporter.sendMail(mailOptions)
+  }
+
+  async sendVerificationEmail(userEmail: string, verificationToken: string): Promise<void> {
+    const verificationUrl = `${process.env.APP_URL || "http://localhost:3000"}/verify-email?token=${verificationToken}`
+
+    const mailOptions = {
+      from: `"${process.env.FROM_NAME || "Fleetly System"}" <${process.env.GMAIL_USER}>`,
+      to: userEmail,
+      subject: "Verify Your Email Address",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">Verify Your Email Address</h2>
+          <p>Please click the link below to verify your email address:</p>
+          <p><a href="${verificationUrl}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email</a></p>
+          <p>If the button doesn't work, copy and paste this link into your browser:</p>
+          <p style="word-break: break-all;">${verificationUrl}</p>
+          <p>This verification link will expire in 24 hours.</p>
+          <hr style="margin: 20px 0;">
+          <p style="color: #666; font-size: 12px;">
+            If you didn't create an account with Fleetly, please ignore this email.
+          </p>
+        </div>
+      `,
+    }
+
+    await this.transporter.sendMail(mailOptions)
   }
 }
 

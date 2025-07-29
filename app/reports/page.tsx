@@ -4,22 +4,35 @@ import { useState } from "react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { BarChart3, Download, FileText, TrendingUp, DollarSign } from "lucide-react"
+import { Download } from "lucide-react"
 import { mockVehicles, mockDrivers, mockMaintenanceRecords, mockFuelRecords, mockIncidents } from "@/lib/data"
+
+const reportTypes = [
+  {
+    title: "Vehicle Utilization Report",
+    description: "Track vehicle usage and efficiency metrics",
+    lastGenerated: "2024-01-25",
+  },
+  {
+    title: "Maintenance Cost Analysis",
+    description: "Analyze maintenance costs and trends",
+    lastGenerated: "2024-01-20",
+  },
+  {
+    title: "Fuel Consumption Report",
+    description: "Monitor fuel usage and costs across the fleet",
+    lastGenerated: "2024-01-22",
+  },
+  {
+    title: "Driver Performance Report",
+    description: "Evaluate driver performance and safety metrics",
+    lastGenerated: "2024-01-18",
+  },
+]
 
 export default function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState("overview")
   const [dateRange, setDateRange] = useState("30")
-
-  const reportTypes = [
-    { value: "overview", label: "Fleet Overview", icon: BarChart3 },
-    { value: "maintenance", label: "Maintenance Report", icon: FileText },
-    { value: "fuel", label: "Fuel Consumption", icon: TrendingUp },
-    { value: "incidents", label: "Incident Report", icon: FileText },
-    { value: "driver", label: "Driver Performance", icon: FileText },
-  ]
 
   const generateOverviewStats = () => {
     const totalVehicles = mockVehicles.length
@@ -51,7 +64,6 @@ export default function ReportsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalVehicles}</div>
@@ -62,7 +74,6 @@ export default function ReportsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Drivers</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalDrivers}</div>
@@ -73,7 +84,6 @@ export default function ReportsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Operating Cost</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${stats.totalOperatingCost.toFixed(2)}</div>
@@ -84,7 +94,6 @@ export default function ReportsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Fuel Efficiency</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">28.5 MPG</div>
@@ -150,13 +159,17 @@ export default function ReportsPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Badge variant="default">Active</Badge>
+                  <span className="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                    Active
+                  </span>
                 </div>
                 <div className="font-medium">{mockVehicles.filter((v) => v.status === "active").length} vehicles</div>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Badge variant="destructive">Maintenance</Badge>
+                  <span className="bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">
+                    Maintenance
+                  </span>
                 </div>
                 <div className="font-medium">
                   {mockVehicles.filter((v) => v.status === "maintenance").length} vehicles
@@ -164,7 +177,9 @@ export default function ReportsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Badge variant="secondary">Inactive</Badge>
+                  <span className="bg-gray-100 text-gray-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-900 dark:text-gray-300">
+                    Inactive
+                  </span>
                 </div>
                 <div className="font-medium">{mockVehicles.filter((v) => v.status === "inactive").length} vehicles</div>
               </div>
@@ -245,7 +260,7 @@ export default function ReportsPage() {
           <Card>
             <CardContent className="p-6">
               <div className="text-center text-gray-500">
-                <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <span className="h-12 w-12 mx-auto mb-4 opacity-50">Fuel Icon</span>
                 <p>Fuel consumption report coming soon...</p>
               </div>
             </CardContent>
@@ -256,7 +271,7 @@ export default function ReportsPage() {
           <Card>
             <CardContent className="p-6">
               <div className="text-center text-gray-500">
-                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <span className="h-12 w-12 mx-auto mb-4 opacity-50">Incident Icon</span>
                 <p>Incident report coming soon...</p>
               </div>
             </CardContent>
@@ -267,7 +282,7 @@ export default function ReportsPage() {
           <Card>
             <CardContent className="p-6">
               <div className="text-center text-gray-500">
-                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <span className="h-12 w-12 mx-auto mb-4 opacity-50">Driver Icon</span>
                 <p>Driver performance report coming soon...</p>
               </div>
             </CardContent>
@@ -284,8 +299,8 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
-            <p className="text-gray-600">Generate and view fleet analytics and reports</p>
+            <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
+            <p className="text-muted-foreground">Generate and download fleet management reports</p>
           </div>
           <Button>
             <Download className="h-4 w-4 mr-2" />
@@ -294,48 +309,25 @@ export default function ReportsPage() {
         </div>
 
         {/* Report Controls */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Report Configuration</CardTitle>
-            <CardDescription>Select report type and date range</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">Report Type</label>
-                <Select value={selectedReport} onValueChange={setSelectedReport}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select report type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {reportTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        <div className="flex items-center space-x-2">
-                          <type.icon className="h-4 w-4" />
-                          <span>{type.label}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">Date Range</label>
-                <Select value={dateRange} onValueChange={setDateRange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select date range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="7">Last 7 days</SelectItem>
-                    <SelectItem value="30">Last 30 days</SelectItem>
-                    <SelectItem value="90">Last 90 days</SelectItem>
-                    <SelectItem value="365">Last year</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid gap-4 md:grid-cols-2">
+          {reportTypes.map((report, index) => (
+            <Card key={index}>
+              <CardHeader>
+                <CardTitle className="text-lg">{report.title}</CardTitle>
+                <CardDescription>{report.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-muted-foreground">Last generated: {report.lastGenerated}</div>
+                  <Button size="sm" onClick={() => setSelectedReport(report.title.toLowerCase().replace(" ", "-"))}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Generate
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
         {/* Report Content */}
         {renderCurrentReport()}

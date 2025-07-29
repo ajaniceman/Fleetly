@@ -40,4 +40,37 @@ services:
       - DB_USER=${DB_USER:-fleetly_user}
       - DB_PASSWORD=${DB_PASSWORD:-fleetly_pass_2024}
       - GMAIL_USER=${GMAIL_USER}
-      - GMAIL_APP_PASSWORD=${GMAIL
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-24h}
+      - FROM_NAME=${FROM_NAME:-Fleetly System}
+      - APP_URL=${APP_URL:-http://localhost:3000}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - fleetly-network
+    volumes:
+      - ./uploads:/app/uploads
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: fleetly-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - fleetly-network
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  fleetly-network:
+    driver: bridge

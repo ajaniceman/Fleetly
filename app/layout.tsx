@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Fleetly - Fleet Management System",
-  description: "Comprehensive fleet management solution for modern businesses",
+  description: "Comprehensive fleet management solution",
     generator: 'v0.dev'
 }
 

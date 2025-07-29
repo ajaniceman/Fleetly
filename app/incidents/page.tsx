@@ -99,137 +99,153 @@ export default function IncidentsPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Incidents</h1>
-            <p className="text-gray-600">Track and manage fleet incidents and accidents</p>
+            <h1 className="text-3xl font-bold tracking-tight">Incidents</h1>
+            <p className="text-muted-foreground">Track and manage fleet incidents and accidents</p>
           </div>
           <Button>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="mr-2 h-4 w-4" />
             Report Incident
           </Button>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {incidents.length === 0 ? (
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Incidents</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+            <CardHeader>
+              <CardTitle>No Incidents Reported</CardTitle>
+              <CardDescription>Great! There are currently no incidents to display.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{incidents.length}</div>
+              <p className="text-muted-foreground">
+                When incidents are reported, they will appear here for tracking and management.
+              </p>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Resolved</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{resolvedIncidents}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending</CardTitle>
-              <Clock className="h-4 w-4 text-orange-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{pendingIncidents}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
-              <DollarSign className="h-4 w-4 text-red-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${totalCost.toFixed(2)}</div>
-            </CardContent>
-          </Card>
-        </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Incidents</CardTitle>
+                <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{incidents.length}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Resolved</CardTitle>
+                <AlertTriangle className="h-4 w-4 text-green-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{resolvedIncidents}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Pending</CardTitle>
+                <Clock className="h-4 w-4 text-orange-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{pendingIncidents}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
+                <DollarSign className="h-4 w-4 text-red-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">${totalCost.toFixed(2)}</div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Search and Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Incident Reports</CardTitle>
-            <CardDescription>All reported incidents and their current status</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search incidents..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
+        {incidents.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Incident Reports</CardTitle>
+              <CardDescription>All reported incidents and their current status</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search incidents..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
               </div>
-            </div>
 
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Incident ID</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Vehicle</TableHead>
-                  <TableHead>Driver</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Severity</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Cost</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredIncidents.map((incident) => (
-                  <TableRow key={incident.id}>
-                    <TableCell className="font-medium">{incident.incident_id}</TableCell>
-                    <TableCell>{incident.date.toLocaleDateString()}</TableCell>
-                    <TableCell>{getVehicleInfo(incident.vehicle_id)}</TableCell>
-                    <TableCell>{getDriverInfo(incident.driver_id)}</TableCell>
-                    <TableCell className="capitalize">{incident.type}</TableCell>
-                    <TableCell>
-                      <Badge variant={getSeverityColor(incident.severity)}>{incident.severity}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusColor(incident.status)}>{incident.status}</Badge>
-                    </TableCell>
-                    <TableCell>${incident.cost.toFixed(2)}</TableCell>
-                    <TableCell className="max-w-xs truncate">{incident.location}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Incident
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Incident
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Incident ID</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Vehicle</TableHead>
+                    <TableHead>Driver</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Severity</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Cost</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                </TableHeader>
+                <TableBody>
+                  {filteredIncidents.map((incident) => (
+                    <TableRow key={incident.id}>
+                      <TableCell className="font-medium">{incident.incident_id}</TableCell>
+                      <TableCell>{incident.date.toLocaleDateString()}</TableCell>
+                      <TableCell>{getVehicleInfo(incident.vehicle_id)}</TableCell>
+                      <TableCell>{getDriverInfo(incident.driver_id)}</TableCell>
+                      <TableCell className="capitalize">{incident.type}</TableCell>
+                      <TableCell>
+                        <Badge variant={getSeverityColor(incident.severity)}>{incident.severity}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusColor(incident.status)}>{incident.status}</Badge>
+                      </TableCell>
+                      <TableCell>${incident.cost.toFixed(2)}</TableCell>
+                      <TableCell className="max-w-xs truncate">{incident.location}</TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit Incident
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-red-600">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete Incident
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   )

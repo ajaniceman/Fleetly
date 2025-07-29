@@ -1,65 +1,53 @@
 // Mock Firestore service for development
 export class FirestoreService {
-  private mockData: Record<string, any[]> = {
-    vehicles: [],
-    drivers: [],
-    maintenance: [],
-    fuel: [],
-    incidents: [],
-    notifications: [],
+  private static instance: FirestoreService
+  private data: Map<string, any[]> = new Map()
+
+  private constructor() {
+    // Initialize with mock data
+    this.data.set("vehicles", [])
+    this.data.set("drivers", [])
+    this.data.set("maintenance", [])
+    this.data.set("fuel", [])
+    this.data.set("users", [])
   }
 
-  async collection(name: string) {
-    return {
-      get: async () => ({
-        docs:
-          this.mockData[name]?.map((item, index) => ({
-            id: index.toString(),
-            data: () => item,
-          })) || [],
-      }),
-      add: async (data: any) => {
-        if (!this.mockData[name]) {
-          this.mockData[name] = []
-        }
-        this.mockData[name].push(data)
-        return { id: this.mockData[name].length.toString() }
-      },
-      doc: (id: string) => ({
-        get: async () => ({
-          exists: true,
-          data: () => this.mockData[name]?.[Number.parseInt(id)] || null,
-        }),
-        set: async (data: any) => {
-          if (!this.mockData[name]) {
-            this.mockData[name] = []
-          }
-          this.mockData[name][Number.parseInt(id)] = data
-        },
-        update: async (data: any) => {
-          if (this.mockData[name]?.[Number.parseInt(id)]) {
-            this.mockData[name][Number.parseInt(id)] = {
-              ...this.mockData[name][Number.parseInt(id)],
-              ...data,
-            }
-          }
-        },
-        delete: async () => {
-          if (this.mockData[name]) {
-            this.mockData[name].splice(Number.parseInt(id), 1)
-          }
-        },
-      }),
+  static getInstance(): FirestoreService {
+    if (!FirestoreService.instance) {
+      FirestoreService.instance = new FirestoreService()
+    }
+    return FirestoreService.instance
+  }
+
+  async getCollection(collection: string): Promise<any[]> {
+    return this.data.get(collection) || []
+  }
+
+  async addDocument(collection: string, document: any): Promise<string> {
+    const id = Math.random().toString(36).substr(2, 9)
+    const newDoc = { ...document, id }
+
+    const existing = this.data.get(collection) || []
+    this.data.set(collection, [...existing, newDoc])
+
+    return id
+  }
+
+  async updateDocument(collection: string, id: string, updates: any): Promise<void> {
+    const existing = this.data.get(collection) || []
+    const index = existing.findIndex((doc) => doc.id === id)
+
+    if (index !== -1) {
+      existing[index] = { ...existing[index], ...updates }
+      this.data.set(collection, existing)
     }
   }
 
-  async enableNetwork() {
-    console.log("Firestore network enabled")
-  }
-
-  async disableNetwork() {
-    console.log("Firestore network disabled")
+  async deleteDocument(collection: string, id: string): Promise<void> {
+    const existing = this.data.get(collection) || []
+    const filtered = existing.filter((doc) => doc.id !== id)
+    this.data.set(collection, filtered)
   }
 }
 
-export const db = new FirestoreService()
+export const firestore = FirestoreService.getInstance()

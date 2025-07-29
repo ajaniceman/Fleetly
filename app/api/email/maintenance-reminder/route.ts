@@ -3,18 +3,17 @@ import { serverEmailService } from "@/lib/server/email-service"
 
 export async function POST(request: NextRequest) {
   try {
-    const { to, vehiclePlate, maintenanceType, dueDate, daysUntilDue } = await request.json()
+    const { vehicleId, dueDate } = await request.json()
 
-    const success = await serverEmailService.sendMaintenanceReminder(to, {
-      vehiclePlate,
-      maintenanceType,
-      dueDate,
-      daysUntilDue,
-    })
+    if (!vehicleId || !dueDate) {
+      return NextResponse.json({ error: "Vehicle ID and due date are required" }, { status: 400 })
+    }
 
-    return NextResponse.json({ success })
+    await serverEmailService.sendMaintenanceReminder(vehicleId, dueDate)
+
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Maintenance reminder email API error:", error)
-    return NextResponse.json({ success: false, error: "Failed to send email" }, { status: 500 })
+    console.error("Error sending maintenance reminder:", error)
+    return NextResponse.json({ error: "Failed to send maintenance reminder" }, { status: 500 })
   }
 }

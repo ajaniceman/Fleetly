@@ -1,83 +1,43 @@
-"use client"
-
-import type React from "react"
-
-import { createContext, useContext, useEffect, useState } from "react"
+import jwt from "jsonwebtoken"
+import { cookies } from "next/headers"
 import type { User } from "./types"
 
-interface AuthContextType {
-  user: User | null
-  login: (email: string, password: string) => Promise<boolean>
-  logout: () => void
-  isLoading: boolean
+export async function getUser(): Promise<User | null> {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get("auth-token")?.value
+
+    if (!token) {
+      return null
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback-secret") as any
+
+    // In a real app, you'd fetch the user from the database
+    return {
+      id: decoded.userId,
+      email: decoded.email,
+      name: decoded.name || "User",
+      role: decoded.role,
+      createdAt: new Date().toISOString(),
+    }
+  } catch (error) {
+    return null
+  }
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Check for existing auth token on mount
-    const token = localStorage.getItem("auth_token")
-    if (token) {
-      // In a real app, you would validate the token with your API
-      // For demo purposes, we'll create a mock user
-      setUser({
-        id: 1,
-        name: "Admin User",
-        email: "admin@fleetly.com",
-        role: "admin",
-        is_active: true,
-        created_at: new Date(),
-        updated_at: new Date(),
-      })
-    }
-    setIsLoading(false)
-  }, [])
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // For demo purposes, accept any email/password
-      if (email && password) {
-        const mockUser: User = {
-          id: 1,
-          name: "Admin User",
-          email: email,
-          role: "admin",
-          is_active: true,
-          created_at: new Date(),
-          updated_at: new Date(),
-        }
-
-        setUser(mockUser)
-        localStorage.setItem("auth_token", "demo_token")
-        return true
-      }
-
-      return false
-    } catch (error) {
-      console.error("Login error:", error)
-      return false
-    }
+export async function requireAuth(): Promise<User> {
+  const user = await getUser()
+  if (!user) {
+    throw new Error("Authentication required")
   }
-
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem("auth_token")
-  }
-
-  return <AuthContext.Provider value={{ user, login, logout, isLoading }}>{children}</AuthContext.Provider>
+  return user
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
-  return context
+export function createAuthToken(user: User): string {
+  return jwt.sign(
+    { userId: user.id, email: user.email, role: user.role },
+    process.env.JWT_SECRET || "fallback-secret",
+    { expiresIn: process.env.JWT_EXPIRES_IN || "24h" },
+  )
 }

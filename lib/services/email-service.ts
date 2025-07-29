@@ -21,7 +21,7 @@ interface LicenseExpiry {
   daysUntilExpiry: number
 }
 
-class EmailService {
+class ServerEmailService {
   private transporter: nodemailer.Transporter
 
   constructor() {
@@ -194,7 +194,6 @@ class EmailService {
     //           <div class="content">
     //             <h2>Hello ${userName}!</h2>
     //             <p>Welcome to Fleetly Fleet Management System. Your account has been created successfully.</p>
-    //
     //             ${
     //               tempPassword
     //                 ? `
@@ -207,7 +206,6 @@ class EmailService {
     //             `
     //                 : ""
     //             }
-    //
     //             <p>With Fleetly, you can:</p>
     //             <ul>
     //               <li>🚗 Manage your vehicle fleet</li>
@@ -216,7 +214,6 @@ class EmailService {
     //               <li>⛽ Monitor fuel consumption</li>
     //               <li>📊 Generate detailed reports</li>
     //             </ul>
-    //
     //             <a href="${process.env.NEXT_PUBLIC_APP_URL}/login" class="button">Login to Fleetly</a>
     //           </div>
     //           <div class="footer">
@@ -302,4 +299,80 @@ class EmailService {
   }
 }
 
-export const emailService = new EmailService()
+export const serverEmailService = new ServerEmailService()
+
+// Client-side email service that calls API routes
+export class ClientEmailService {
+  private static instance: ClientEmailService
+
+  private constructor() {}
+
+  static getInstance(): ClientEmailService {
+    if (!ClientEmailService.instance) {
+      ClientEmailService.instance = new ClientEmailService()
+    }
+    return ClientEmailService.instance
+  }
+
+  async sendMaintenanceReminder(vehicleId: string, dueDate: string): Promise<void> {
+    const response = await fetch("/api/email/maintenance-reminder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vehicleId, dueDate }),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to send maintenance reminder")
+    }
+  }
+
+  async sendLicenseExpiryAlert(driverId: string, expiryDate: string): Promise<void> {
+    const response = await fetch("/api/email/license-expiry", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ driverId, expiryDate }),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to send license expiry alert")
+    }
+  }
+
+  async sendWelcomeEmail(userEmail: string, userName: string): Promise<void> {
+    const response = await fetch("/api/email/welcome", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userEmail, userName }),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to send welcome email")
+    }
+  }
+
+  async sendTestEmail(to: string): Promise<void> {
+    const response = await fetch("/api/email/test", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to }),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to send test email")
+    }
+  }
+
+  async sendVerificationEmail(userEmail: string, verificationToken: string): Promise<void> {
+    const response = await fetch("/api/email/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userEmail, verificationToken }),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to send verification email")
+    }
+  }
+}
+
+export const clientEmailService = ClientEmailService.getInstance()

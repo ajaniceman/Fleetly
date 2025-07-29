@@ -1,157 +1,141 @@
--- Fleetly Fleet Management System Database Schema
+-- Fleetly Database Schema
 
 -- Users table
-CREATE TABLE users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
+CREATE TABLE IF NOT EXISTS users (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     role ENUM('admin', 'manager', 'driver') DEFAULT 'driver',
-    is_active BOOLEAN DEFAULT TRUE,
-    language_preference VARCHAR(5) DEFAULT 'en',
-    currency_preference VARCHAR(3) DEFAULT 'USD',
-    email_notifications BOOLEAN DEFAULT TRUE,
-    maintenance_alerts BOOLEAN DEFAULT TRUE,
-    incident_alerts BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    last_login TIMESTAMP NULL,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+-- Vehicles table
+CREATE TABLE IF NOT EXISTS vehicles (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    make VARCHAR(100) NOT NULL,
+    model VARCHAR(100) NOT NULL,
+    year INT NOT NULL,
+    license_plate VARCHAR(20) UNIQUE NOT NULL,
+    vin VARCHAR(17) UNIQUE NOT NULL,
+    status ENUM('active', 'maintenance', 'inactive') DEFAULT 'active',
+    mileage INT DEFAULT 0,
+    fuel_type ENUM('gasoline', 'diesel', 'electric', 'hybrid') NOT NULL,
+    last_maintenance DATE,
+    next_maintenance DATE,
+    location VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Vehicles table
-CREATE TABLE vehicles (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    license_plate VARCHAR(20) UNIQUE NOT NULL,
-    make VARCHAR(100) NOT NULL,
-    model VARCHAR(100) NOT NULL,
-    year INT NOT NULL,
-    vin VARCHAR(17) UNIQUE,
-    status ENUM('active', 'maintenance', 'inactive') DEFAULT 'active',
-    mileage INT DEFAULT 0,
-    fuel_type ENUM('gasoline', 'diesel', 'electric', 'hybrid') DEFAULT 'gasoline',
-    driver_id INT,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (driver_id) REFERENCES drivers(id) ON DELETE SET NULL
-);
-
 -- Drivers table
-CREATE TABLE drivers (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS drivers (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    user_id VARCHAR(36),
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE,
+    email VARCHAR(255) UNIQUE NOT NULL,
     phone VARCHAR(20),
     license_number VARCHAR(50) UNIQUE NOT NULL,
     license_expiry DATE NOT NULL,
     status ENUM('active', 'inactive', 'suspended') DEFAULT 'active',
     hire_date DATE NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Vehicle assignments table
+CREATE TABLE IF NOT EXISTS vehicle_assignments (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    vehicle_id VARCHAR(36) NOT NULL,
+    driver_id VARCHAR(36) NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    unassigned_at TIMESTAMP NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
+    FOREIGN KEY (driver_id) REFERENCES drivers(id) ON DELETE CASCADE
 );
 
 -- Maintenance records table
-CREATE TABLE maintenance_records (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    vehicle_id INT NOT NULL,
-    service_type VARCHAR(255) NOT NULL,
-    description TEXT,
-    scheduled_date DATE NOT NULL,
-    completed_date DATE,
-    due_date DATE,
+CREATE TABLE IF NOT EXISTS maintenance_records (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    vehicle_id VARCHAR(36) NOT NULL,
+    type ENUM('scheduled', 'repair', 'inspection') NOT NULL,
+    description TEXT NOT NULL,
+    date DATE NOT NULL,
     cost DECIMAL(10, 2) DEFAULT 0.00,
     mileage INT,
-    status ENUM('scheduled', 'in_progress', 'completed', 'overdue') DEFAULT 'scheduled',
-    is_active BOOLEAN DEFAULT TRUE,
+    status ENUM('scheduled', 'in-progress', 'completed', 'cancelled') DEFAULT 'scheduled',
+    service_provider VARCHAR(255),
+    notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
 );
 
 -- Fuel records table
-CREATE TABLE fuel_records (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    vehicle_id INT NOT NULL,
-    driver_id INT NOT NULL,
-    fuel_amount DECIMAL(8, 2) NOT NULL,
-    cost_per_unit DECIMAL(6, 3) NOT NULL,
-    total_cost DECIMAL(10, 2) NOT NULL,
-    odometer_reading INT,
-    fuel_station VARCHAR(255),
-    receipt_number VARCHAR(100),
+CREATE TABLE IF NOT EXISTS fuel_records (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    vehicle_id VARCHAR(36) NOT NULL,
+    driver_id VARCHAR(36),
     date DATE NOT NULL,
+    amount DECIMAL(8, 2) NOT NULL,
+    cost DECIMAL(10, 2) NOT NULL,
+    price_per_unit DECIMAL(6, 3) NOT NULL,
+    mileage INT,
+    location VARCHAR(255),
+    receipt_url VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
-    FOREIGN KEY (driver_id) REFERENCES drivers(id) ON DELETE CASCADE
+    FOREIGN KEY (driver_id) REFERENCES drivers(id) ON DELETE SET NULL
 );
 
 -- Incidents table
-CREATE TABLE incidents (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    incident_id VARCHAR(50) UNIQUE NOT NULL,
-    vehicle_id INT NOT NULL,
-    driver_id INT NOT NULL,
-    type ENUM('accident', 'breakdown', 'violation', 'theft') NOT NULL,
-    severity ENUM('minor', 'medium', 'major', 'critical') DEFAULT 'medium',
+CREATE TABLE IF NOT EXISTS incidents (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    vehicle_id VARCHAR(36) NOT NULL,
+    driver_id VARCHAR(36),
+    type ENUM('accident', 'breakdown', 'violation', 'other') NOT NULL,
+    severity ENUM('low', 'medium', 'high', 'critical') DEFAULT 'medium',
     description TEXT NOT NULL,
-    location VARCHAR(500),
     date DATE NOT NULL,
-    status ENUM('pending', 'investigating', 'resolved') DEFAULT 'pending',
+    location VARCHAR(255),
     cost DECIMAL(10, 2) DEFAULT 0.00,
+    status ENUM('reported', 'investigating', 'resolved', 'closed') DEFAULT 'reported',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
-    FOREIGN KEY (driver_id) REFERENCES drivers(id) ON DELETE CASCADE
+    FOREIGN KEY (driver_id) REFERENCES drivers(id) ON DELETE SET NULL
 );
 
 -- Notifications table
-CREATE TABLE notifications (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    type ENUM('maintenance_reminder', 'license_expiry', 'incident_alert', 'system') NOT NULL,
+CREATE TABLE IF NOT EXISTS notifications (
+    id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    user_id VARCHAR(36) NOT NULL,
+    type ENUM('maintenance', 'license_expiry', 'fuel_alert', 'incident', 'system') NOT NULL,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
-    priority ENUM('low', 'medium', 'high', 'critical') DEFAULT 'medium',
     is_read BOOLEAN DEFAULT FALSE,
-    action_url VARCHAR(500),
-    related_entity_type VARCHAR(50),
-    related_entity_id INT,
-    expires_at TIMESTAMP NULL,
-    email_sent BOOLEAN DEFAULT FALSE,
-    email_sent_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- System settings table
-CREATE TABLE system_settings (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    setting_key VARCHAR(100) UNIQUE NOT NULL,
-    setting_value JSON NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- Insert default system settings
-INSERT INTO system_settings (setting_key, setting_value, description) VALUES
-('maintenance_reminder_days', '[30, 15, 7, 3]', 'Days before maintenance due date to send reminders'),
-('license_expiry_reminder_days', '[90, 30, 15, 7]', 'Days before license expiry to send reminders'),
-('fuel_efficiency_threshold', '20.0', 'Minimum fuel efficiency (MPG) threshold for alerts'),
-('incident_auto_notify', 'true', 'Automatically notify managers of new incidents'),
-('backup_retention_days', '30', 'Number of days to retain database backups');
-
 -- Create indexes for better performance
 CREATE INDEX idx_vehicles_status ON vehicles(status);
-CREATE INDEX idx_vehicles_driver ON vehicles(driver_id);
+CREATE INDEX idx_vehicles_license_plate ON vehicles(license_plate);
 CREATE INDEX idx_drivers_status ON drivers(status);
 CREATE INDEX idx_drivers_license_expiry ON drivers(license_expiry);
-CREATE INDEX idx_maintenance_status ON maintenance_records(status);
-CREATE INDEX idx_maintenance_due_date ON maintenance_records(due_date);
-CREATE INDEX idx_fuel_date ON fuel_records(date);
-CREATE INDEX idx_incidents_status ON incidents(status);
-CREATE INDEX idx_incidents_date ON incidents(date);
+CREATE INDEX idx_maintenance_vehicle_date ON maintenance_records(vehicle_id, date);
+CREATE INDEX idx_fuel_vehicle_date ON fuel_records(vehicle_id, date);
+CREATE INDEX idx_incidents_vehicle_date ON incidents(vehicle_id, date);
 CREATE INDEX idx_notifications_user_read ON notifications(user_id, is_read);
-CREATE INDEX idx_notifications_expires ON notifications(expires_at);
+CREATE INDEX idx_vehicle_assignments_active ON vehicle_assignments(is_active);
+
+-- Insert default admin user (password: admin123)
+INSERT INTO users (email, password_hash, name, role) VALUES 
+('admin@fleetly.com', '$2b$10$rOzJqQqQqQqQqQqQqQqQqO', 'System Administrator', 'admin')
+ON DUPLICATE KEY UPDATE email = email;

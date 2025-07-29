@@ -15,7 +15,9 @@
     "totalVehicles": "Total Vehicles",
     "totalDrivers": "Total Drivers",
     "pendingMaintenance": "Pending Maintenance",
-    "monthlyFuelCost": "Monthly Fuel Cost"
+    "monthlyFuelCost": "Monthly Fuel Cost",
+    "recent_activity": "Recent Activity",
+    "quick_actions": "Quick Actions"
   },
   "vehicles": {
     "title": "Vehicles",
@@ -37,7 +39,8 @@
     "licenseNumber": "License Number",
     "licenseExpiry": "License Expiry",
     "status": "Status",
-    "hireDate": "Hire Date"
+    "hireDate": "Hire Date",
+    "active_drivers": "Active Drivers"
   },
   "maintenance": {
     "title": "Maintenance",
@@ -47,7 +50,9 @@
     "description": "Description",
     "scheduledDate": "Scheduled Date",
     "status": "Status",
-    "cost": "Cost"
+    "cost": "Cost",
+    "maintenance_due": "Maintenance Due",
+    "maintenance_reminders": "Maintenance Reminders"
   },
   "fuel": {
     "title": "Fuel Management",
@@ -57,7 +62,9 @@
     "costPerUnit": "Cost/Unit",
     "totalCost": "Total Cost",
     "station": "Station",
-    "odometer": "Odometer"
+    "odometer": "Odometer",
+    "fuel_efficiency": "Fuel Efficiency",
+    "fuel_efficiency_alerts": "Fuel Efficiency Alerts"
   },
   "incidents": {
     "title": "Incidents",
@@ -73,7 +80,8 @@
     "subtitle": "Generate and view fleet analytics and reports",
     "exportReport": "Export Report",
     "reportType": "Report Type",
-    "dateRange": "Date Range"
+    "dateRange": "Date Range",
+    "generate_report": "Generate Report"
   },
   "settings": {
     "title": "Settings",
@@ -83,12 +91,16 @@
     "notifications": "Notifications",
     "security": "Security",
     "integrations": "Integrations",
-    "appearance": "Appearance"
+    "appearance": "Appearance",
+    "company_name": "Company Name",
+    "contact_email": "Contact Email",
+    "address": "Address"
   },
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Mark all read",
-    "noNotifications": "No notifications"
+    "noNotifications": "No notifications",
+    "license_expiry_alerts": "License Expiry Alerts"
   },
   "common": {
     "search": "Search",

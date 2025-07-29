@@ -48,8 +48,8 @@ export default function SettingsPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-            <p className="text-gray-600">Manage your fleet management system preferences</p>
+            <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+            <p className="text-muted-foreground">Configure your fleet management system</p>
           </div>
           <Button onClick={handleSaveSettings}>
             <Save className="h-4 w-4 mr-2" />
@@ -264,8 +264,11 @@ export default function SettingsPage() {
                       </div>
                       <Switch defaultChecked />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="session-timeout">Session Timeout (minutes)</Label>
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Session Timeout (minutes)</Label>
+                        <p className="text-sm text-gray-500">Set the session timeout duration</p>
+                      </div>
                       <Input id="session-timeout" type="number" placeholder="30" defaultValue="30" className="w-32" />
                     </div>
                   </div>

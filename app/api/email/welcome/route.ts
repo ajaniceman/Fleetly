@@ -3,13 +3,17 @@ import { serverEmailService } from "@/lib/server/email-service"
 
 export async function POST(request: NextRequest) {
   try {
-    const { to, userName, tempPassword } = await request.json()
+    const { userEmail, userName } = await request.json()
 
-    const success = await serverEmailService.sendWelcomeEmail(to, userName, tempPassword)
+    if (!userEmail || !userName) {
+      return NextResponse.json({ error: "User email and name are required" }, { status: 400 })
+    }
 
-    return NextResponse.json({ success })
+    await serverEmailService.sendWelcomeEmail(userEmail, userName)
+
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Welcome email API error:", error)
-    return NextResponse.json({ success: false, error: "Failed to send email" }, { status: 500 })
+    console.error("Error sending welcome email:", error)
+    return NextResponse.json({ error: "Failed to send welcome email" }, { status: 500 })
   }
 }

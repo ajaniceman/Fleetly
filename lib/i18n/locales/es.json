@@ -35,7 +35,7 @@
     "maintenance": "Mantenimiento",
     "fuel": "Combustible",
     "incidents": "Incidentes",
-    "reports": "Informes",
+    "reports": "Reportes",
     "settings": "Configuración"
   },
   "dashboard": {
@@ -44,7 +44,9 @@
     "totalVehicles": "Total de Vehículos",
     "totalDrivers": "Total de Conductores",
     "pendingMaintenance": "Mantenimiento Pendiente",
-    "monthlyFuelCost": "Costo Mensual de Combustible"
+    "monthlyFuelCost": "Costo Mensual de Combustible",
+    "recent_activity": "Actividad Reciente",
+    "quick_actions": "Acciones Rápidas"
   },
   "vehicles": {
     "title": "Vehículos",
@@ -70,7 +72,8 @@
       "active": "Activo",
       "onLeave": "De Licencia",
       "suspended": "Suspendido"
-    }
+    },
+    "active_drivers": "Conductores Activos"
   },
   "maintenance": {
     "title": "Mantenimiento",
@@ -87,7 +90,8 @@
       "inProgress": "En Progreso",
       "completed": "Completado",
       "overdue": "Vencido"
-    }
+    },
+    "maintenance_due": "Mantenimiento Pendiente"
   },
   "fuel": {
     "title": "Gestión de Combustible",
@@ -97,7 +101,8 @@
     "unitCost": "Costo por Unidad",
     "totalCost": "Costo Total",
     "fuelConsumption": "Consumo de Combustible",
-    "fuelEfficiency": "Eficiencia de Combustible"
+    "fuelEfficiency": "Eficiencia de Combustible",
+    "add_fuel_record": "Agregar Registro de Combustible"
   },
   "incidents": {
     "title": "Incidentes",
@@ -124,7 +129,8 @@
       "investigating": "Investigando",
       "resolved": "Resuelto",
       "closed": "Cerrado"
-    }
+    },
+    "report_incident": "Reportar Incidente"
   },
   "reports": {
     "title": "Reportes y Análisis",
@@ -132,7 +138,8 @@
     "fleetUtilization": "Utilización de Flota",
     "maintenanceCosts": "Costos de Mantenimiento",
     "driverPerformance": "Rendimiento del Conductor",
-    "fuelEfficiency": "Eficiencia de Combustible"
+    "fuelEfficiency": "Eficiencia de Combustible",
+    "generate_report": "Generar Reporte"
   },
   "settings": {
     "title": "Configuración",
@@ -148,7 +155,10 @@
     "timezone": "Zona Horaria",
     "language": "Idioma",
     "theme": "Tema",
-    "currency": "Moneda"
+    "currency": "Moneda",
+    "company_name": "Nombre de la Empresa",
+    "contact_email": "Email de Contacto",
+    "address": "Dirección"
   },
   "auth": {
     "login": "Iniciar Sesión",
@@ -170,6 +180,13 @@
     "licenseExpiry": "Vencimiento de Licencia",
     "documentExpiry": "Vencimiento de Documento",
     "incidentAlert": "Alerta de Incidente",
-    "systemAlert": "Alerta del Sistema"
+    "systemAlert": "Alerta del Sistema",
+    "notifications": "Notificaciones",
+    "maintenance_reminders": "Recordatorios de Mantenimiento",
+    "license_expiry_alerts": "Alertas de Vencimiento de Licencia",
+    "fuel_efficiency_alerts": "Alertas de Eficiencia de Combustible"
+  },
+  "actions": {
+    "save_changes": "Guardar Cambios"
   }
 }

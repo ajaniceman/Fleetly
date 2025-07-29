@@ -3,18 +3,17 @@ import { serverEmailService } from "@/lib/server/email-service"
 
 export async function POST(request: NextRequest) {
   try {
-    const { to, driverName, licenseType, expiryDate, daysUntilExpiry } = await request.json()
+    const { driverId, expiryDate } = await request.json()
 
-    const success = await serverEmailService.sendLicenseExpiryAlert(to, {
-      driverName,
-      licenseType,
-      expiryDate,
-      daysUntilExpiry,
-    })
+    if (!driverId || !expiryDate) {
+      return NextResponse.json({ error: "Driver ID and expiry date are required" }, { status: 400 })
+    }
 
-    return NextResponse.json({ success })
+    await serverEmailService.sendLicenseExpiryAlert(driverId, expiryDate)
+
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("License expiry email API error:", error)
-    return NextResponse.json({ success: false, error: "Failed to send email" }, { status: 500 })
+    console.error("Error sending license expiry alert:", error)
+    return NextResponse.json({ error: "Failed to send license expiry alert" }, { status: 500 })
   }
 }

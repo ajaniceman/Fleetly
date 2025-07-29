@@ -1,48 +1,31 @@
-import { BaseService } from "./base-service"
-import { executeQuery } from "../database/connection"
-import fetch from "node-fetch"
-
-interface ExchangeRate {
-  id: number
-  base_currency: string
-  target_currency: string
-  rate: number
-  date: string
-  created_at: string
+interface ExchangeRates {
+  [key: string]: number
 }
 
-interface ExchangeApiResponse {
-  success: boolean
-  rates: Record<string, number>
-  base: string
-  date: string
+interface CurrencyInfo {
+  code: string
+  name: string
+  symbol: string
 }
 
-export class CurrencyService extends BaseService<ExchangeRate> {
+export class CurrencyService {
   private static instance: CurrencyService
-  private rateCache: Map<string, { rate: number; timestamp: number }> = new Map()
-  private readonly CACHE_DURATION = 1000 * 60 * 60 // 1 hour in milliseconds
-  private exchangeRates: Record<string, number> = {
-    USD: 1.0,
-    EUR: 0.85,
-    GBP: 0.73,
-    CAD: 1.25,
-    JPY: 110.0,
-    AUD: 1.35,
-  }
+  private rates: ExchangeRates = {}
+  private lastUpdate: Date | null = null
+  private readonly UPDATE_INTERVAL = 60 * 60 * 1000 // 1 hour
 
-  private currencySymbols: Record<string, string> = {
-    USD: "$",
-    EUR: "€",
-    GBP: "£",
-    CAD: "C$",
-    JPY: "¥",
-    AUD: "A$",
-  }
+  private currencies: CurrencyInfo[] = [
+    { code: "USD", name: "US Dollar", symbol: "$" },
+    { code: "EUR", name: "Euro", symbol: "€" },
+    { code: "GBP", name: "British Pound", symbol: "£" },
+    { code: "JPY", name: "Japanese Yen", symbol: "¥" },
+    { code: "CAD", name: "Canadian Dollar", symbol: "C$" },
+    { code: "AUD", name: "Australian Dollar", symbol: "A$" },
+    { code: "CHF", name: "Swiss Franc", symbol: "CHF" },
+    { code: "CNY", name: "Chinese Yuan", symbol: "¥" },
+  ]
 
-  constructor() {
-    super("currency_rates")
-  }
+  private constructor() {}
 
   static getInstance(): CurrencyService {
     if (!CurrencyService.instance) {
@@ -51,256 +34,72 @@ export class CurrencyService extends BaseService<ExchangeRate> {
     return CurrencyService.instance
   }
 
-  // Get supported currencies from system settings
-  async getSupportedCurrencies(): Promise<Array<{ code: string; symbol: string; name: string }>> {
-    try {
-      const query = `
-        SELECT setting_value 
-        FROM system_settings 
-        WHERE setting_key = 'supported_currencies'
-      `
-      const results = await executeQuery<{ setting_value: string }>(query)
-
-      if (results[0]?.setting_value) {
-        return JSON.parse(results[0].setting_value)
-      }
-
-      return [
-        { code: "USD", symbol: "$", name: "US Dollar" },
-        { code: "EUR", symbol: "€", name: "Euro" },
-        { code: "GBP", symbol: "£", name: "British Pound" },
-        { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
-        { code: "JPY", symbol: "¥", name: "Japanese Yen" },
-        { code: "AUD", symbol: "A$", name: "Australian Dollar" },
-      ] // Default currencies
-    } catch (error) {
-      console.error("Error getting supported currencies:", error)
-      return [
-        { code: "USD", symbol: "$", name: "US Dollar" },
-        { code: "EUR", symbol: "€", name: "Euro" },
-        { code: "GBP", symbol: "£", name: "British Pound" },
-        { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
-        { code: "JPY", symbol: "¥", name: "Japanese Yen" },
-        { code: "AUD", symbol: "A$", name: "Australian Dollar" },
-      ]
+  async getExchangeRates(): Promise<ExchangeRates> {
+    if (this.shouldUpdateRates()) {
+      await this.fetchExchangeRates()
     }
+    return this.rates
   }
 
-  // Get exchange rate between two currencies
-  async getExchangeRate(fromCurrency: string, toCurrency: string): Promise<number> {
-    try {
-      // Same currency
-      if (fromCurrency === toCurrency) {
-        return 1
-      }
-
-      const cacheKey = `${fromCurrency}_${toCurrency}`
-      const cached = this.rateCache.get(cacheKey)
-
-      // Return cached rate if still valid
-      if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
-        return cached.rate
-      }
-
-      // Try to get rate from database (today's rate)
-      const today = new Date().toISOString().split("T")[0]
-      let rate = await this.getRateFromDatabase(fromCurrency, toCurrency, today)
-
-      if (!rate) {
-        // Fetch from external API
-        rate = await this.fetchRateFromAPI(fromCurrency, toCurrency)
-
-        if (rate) {
-          // Store in database
-          await this.storeRate(fromCurrency, toCurrency, rate, today)
-        }
-      }
-
-      if (rate) {
-        // Cache the rate
-        this.rateCache.set(cacheKey, { rate, timestamp: Date.now() })
-        return rate
-      }
-
-      throw new Error(`Unable to get exchange rate for ${fromCurrency} to ${toCurrency}`)
-    } catch (error) {
-      console.error("Error getting exchange rate:", error)
-
-      // Fallback: try to get last known rate from database
-      const fallbackRate = await this.getLastKnownRate(fromCurrency, toCurrency)
-      if (fallbackRate) {
-        return fallbackRate
-      }
-
-      // Ultimate fallback
-      return 1
-    }
+  private shouldUpdateRates(): boolean {
+    if (!this.lastUpdate) return true
+    const now = new Date()
+    return now.getTime() - this.lastUpdate.getTime() > this.UPDATE_INTERVAL
   }
 
-  // Convert amount from one currency to another
-  async convertCurrency(
-    amount: number,
-    fromCurrency: string,
-    toCurrency: string,
-  ): Promise<{ convertedAmount: number; rate: number; fromCurrency: string; toCurrency: string }> {
-    try {
-      const rate = await this.getExchangeRate(fromCurrency, toCurrency)
-      const convertedAmount = Math.round(amount * rate * 100) / 100 // Round to 2 decimal places
-
-      return {
-        convertedAmount,
-        rate,
-        fromCurrency,
-        toCurrency,
-      }
-    } catch (error) {
-      console.error("Error converting currency:", error)
-      throw error
-    }
-  }
-
-  // Get rate from database
-  private async getRateFromDatabase(fromCurrency: string, toCurrency: string, date: string): Promise<number | null> {
-    try {
-      const query = `
-        SELECT rate 
-        FROM currency_rates 
-        WHERE base_currency = ? AND target_currency = ? AND date = ?
-        ORDER BY created_at DESC 
-        LIMIT 1
-      `
-      const results = await executeQuery<{ rate: number }>(query, [fromCurrency, toCurrency, date])
-      return results[0]?.rate || null
-    } catch (error) {
-      console.error("Error getting rate from database:", error)
-      return null
-    }
-  }
-
-  // Get last known rate from database
-  private async getLastKnownRate(fromCurrency: string, toCurrency: string): Promise<number | null> {
-    try {
-      const query = `
-        SELECT rate 
-        FROM currency_rates 
-        WHERE base_currency = ? AND target_currency = ?
-        ORDER BY date DESC, created_at DESC 
-        LIMIT 1
-      `
-      const results = await executeQuery<{ rate: number }>(query, [fromCurrency, toCurrency])
-      return results[0]?.rate || null
-    } catch (error) {
-      console.error("Error getting last known rate:", error)
-      return null
-    }
-  }
-
-  // Fetch rate from external API
-  private async fetchRateFromAPI(fromCurrency: string, toCurrency: string): Promise<number | null> {
-    try {
-      const apiUrl = process.env.EXCHANGE_API_URL || "https://api.exchangerate-api.com/v4/latest"
-      const apiKey = process.env.EXCHANGE_API_KEY
-
-      let url = `${apiUrl}/${fromCurrency}`
-      if (apiKey) {
-        url += `?access_key=${apiKey}`
-      }
-
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`)
-      }
-
-      const data: ExchangeApiResponse = await response.json()
-
-      if (data.success === false) {
-        throw new Error("API returned error")
-      }
-
-      return data.rates[toCurrency] || null
-    } catch (error) {
-      console.error("Error fetching rate from API:", error)
-      return null
-    }
-  }
-
-  // Store rate in database
-  private async storeRate(fromCurrency: string, toCurrency: string, rate: number, date: string): Promise<void> {
-    try {
-      const query = `
-        INSERT INTO currency_rates (base_currency, target_currency, rate, date)
-        VALUES (?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE rate = VALUES(rate), created_at = CURRENT_TIMESTAMP
-      `
-      await executeQuery(query, [fromCurrency, toCurrency, rate, date])
-    } catch (error) {
-      console.error("Error storing rate in database:", error)
-    }
-  }
-
-  // Update all exchange rates for supported currencies
-  async updateAllRates(baseCurrency = "USD"): Promise<void> {
-    try {
-      const supportedCurrencies = await this.getSupportedCurrencies()
-      const today = new Date().toISOString().split("T")[0]
-
-      // Fetch rates from API
-      const apiUrl = process.env.EXCHANGE_API_URL || "https://api.exchangerate-api.com/v4/latest"
-      const response = await fetch(`${apiUrl}/${baseCurrency}`)
-
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`)
-      }
-
-      const data: ExchangeApiResponse = await response.json()
-
-      // Store rates for all supported currencies
-      const storePromises = supportedCurrencies
-        .filter((currency) => currency.code !== baseCurrency && data.rates[currency.code])
-        .map((currency) => this.storeRate(baseCurrency, currency.code, data.rates[currency.code], today))
-
-      await Promise.all(storePromises)
-
-      console.log(`✅ Updated exchange rates for ${storePromises.length} currencies`)
-    } catch (error) {
-      console.error("Error updating all rates:", error)
-      throw error
-    }
-  }
-
-  // Format currency amount with proper symbol and formatting
-  formatCurrency(amount: number, currency: string, locale = "en-US"): string {
-    try {
-      return new Intl.NumberFormat(locale, {
-        style: "currency",
-        currency: currency,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(amount)
-    } catch (error) {
-      // Fallback formatting
-      const symbol = this.currencySymbols[currency] || currency
-      return `${symbol}${amount.toFixed(2)}`
-    }
-  }
-
-  // Get currency symbol
-  getCurrencySymbol(currency: string): string {
-    return this.currencySymbols[currency] || currency
-  }
-
-  // Update exchange rates (in a real app, this would fetch from an API)
-  async updateExchangeRates(): Promise<void> {
+  private async fetchExchangeRates(): Promise<void> {
     try {
       // In a real application, you would fetch from a currency API
-      // For demo purposes, we'll simulate rate updates
-      console.log("Exchange rates updated (simulated)")
+      // For now, we'll use mock data
+      this.rates = {
+        USD: 1.0,
+        EUR: 0.85,
+        GBP: 0.73,
+        JPY: 110.0,
+        CAD: 1.25,
+        AUD: 1.35,
+        CHF: 0.92,
+        CNY: 6.45,
+      }
+      this.lastUpdate = new Date()
     } catch (error) {
-      console.error("Error updating exchange rates:", error)
+      console.error("Failed to fetch exchange rates:", error)
+      // Use fallback rates if API fails
+      if (Object.keys(this.rates).length === 0) {
+        this.rates = { USD: 1.0 }
+      }
     }
+  }
+
+  async convertCurrency(amount: number, fromCurrency: string, toCurrency: string): Promise<number> {
+    if (fromCurrency === toCurrency) return amount
+
+    const rates = await this.getExchangeRates()
+    const fromRate = rates[fromCurrency] || 1
+    const toRate = rates[toCurrency] || 1
+
+    // Convert to USD first, then to target currency
+    const usdAmount = amount / fromRate
+    return usdAmount * toRate
+  }
+
+  formatCurrency(amount: number, currencyCode: string): string {
+    const currency = this.currencies.find((c) => c.code === currencyCode)
+    const symbol = currency?.symbol || currencyCode
+
+    return `${symbol}${amount.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`
+  }
+
+  getAvailableCurrencies(): CurrencyInfo[] {
+    return this.currencies
+  }
+
+  getCurrencyInfo(code: string): CurrencyInfo | undefined {
+    return this.currencies.find((c) => c.code === code)
   }
 }
 
-// Export singleton instance
 export const currencyService = CurrencyService.getInstance()

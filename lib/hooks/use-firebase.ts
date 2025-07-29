@@ -30,6 +30,8 @@ interface UseFirebaseReturn {
   isConnected: boolean
   connect: () => void
   disconnect: () => void
+  signIn: (email: string, password: string) => Promise<{ user: { email: string } }>
+  signOut: () => Promise<void>
 }
 
 let firebaseApp: FirebaseApp | null = null
@@ -127,6 +129,17 @@ export function useFirebase(): UseFirebaseReturn {
     }
   }, [])
 
+  const signIn = async (email: string, password: string) => {
+    // Mock sign in
+    return Promise.resolve({ user: { email } })
+  }
+
+  const signOut = async () => {
+    // Mock sign out
+    setUser(null)
+    return Promise.resolve()
+  }
+
   return {
     app: firebaseApp,
     db: firestoreDb,
@@ -138,5 +151,7 @@ export function useFirebase(): UseFirebaseReturn {
     isConnected,
     connect: () => setIsConnected(true),
     disconnect: () => setIsConnected(false),
+    signIn,
+    signOut,
   }
 }

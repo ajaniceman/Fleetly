@@ -1,12 +1,19 @@
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 import { serverEmailService } from "@/lib/server/email-service"
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    const success = await serverEmailService.verifyConnection()
-    return NextResponse.json({ success })
+    const { userEmail, verificationToken } = await request.json()
+
+    if (!userEmail || !verificationToken) {
+      return NextResponse.json({ error: "User email and verification token are required" }, { status: 400 })
+    }
+
+    await serverEmailService.sendVerificationEmail(userEmail, verificationToken)
+
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Email verification API error:", error)
-    return NextResponse.json({ success: false, error: "Failed to verify email connection" }, { status: 500 })
+    console.error("Error sending verification email:", error)
+    return NextResponse.json({ error: "Failed to send verification email" }, { status: 500 })
   }
 }
