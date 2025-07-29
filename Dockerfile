@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Copy only package files and install dependencies
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm ci --verbose
 
 # Build stage
 FROM node:18-alpine AS builder
