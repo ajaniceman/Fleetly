@@ -1,7 +1,8 @@
-import nodemailer from "nodemailer"
+// Correctly import createTransport as a named export
+import { createTransport } from "nodemailer"
 
 // Server-side email service using nodemailer
-const transporter = nodemailer.createTransporter({
+const transporter = createTransport({ // Use createTransport directly
   service: "gmail",
   auth: {
     user: process.env.GMAIL_USER,
@@ -9,6 +10,7 @@ const transporter = nodemailer.createTransporter({
   },
 })
 
+// All your existing send functions follow below, using 'transporter' as before
 export async function sendMaintenanceReminder(
   vehicleId: string,
   driverEmail: string,
