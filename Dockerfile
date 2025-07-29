@@ -2,13 +2,13 @@
 FROM node:18-alpine AS deps
 
 # Install libc6-compat with apk (apk is available in alpine images)
-RUN apk add --no-cache libc6-compat
+RUN apk update && apk add --no-cache libc6-compat
 
 WORKDIR /app
 
 # Copy only package files and install dependencies
 COPY package.json package-lock.json* ./
-RUN npm ci --verbose
+RUN npm ci
 
 # Build stage
 FROM node:18-alpine AS builder
